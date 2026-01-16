@@ -1,0 +1,196 @@
+{
+  "id": "test-scan-001",
+  "projectPath": "/test-fixtures/sample-project",
+  "projectName": "sample-project",
+  "status": "complete",
+  "createdAt": "2026-01-15T00:00:00.000Z",
+  "completedAt": "2026-01-15T00:00:01.000Z",
+  "stats": {
+    "totalFiles": 8,
+    "totalFunctions": 14,
+    "totalClasses": 0,
+    "totalConnections": 12,
+    "totalWarnings": 2,
+    "warningsByLevel": {
+      "info": 0,
+      "warning": 2,
+      "error": 0
+    },
+    "nodesByType": {
+      "file": 8,
+      "function": 14,
+      "class": 0,
+      "cluster": 0
+    },
+    "analyzedCount": 0,
+    "pendingAnalysis": 14
+  },
+  "nodes": {
+    "file:src/index.ts": {
+      "id": "file:src/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/index.ts",
+      "line": 1,
+      "endLine": 6,
+      "imports": [
+        {
+          "source": "./services/userService",
+          "items": [
+            { "name": "createUser", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "getUserById", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "updateUser", "alias": null, "isDefault": false, "isNamespace": false }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./services/authService",
+          "items": [
+            { "name": "login", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "validateToken", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "refreshToken", "alias": null, "isDefault": false, "isNamespace": false }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./types/user",
+          "items": [
+            { "name": "User", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "CreateUserInput", "alias": null, "isDefault": false, "isNamespace": false }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "./types/auth",
+          "items": [
+            { "name": "AuthResult", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "TokenPayload", "alias": null, "isDefault": false, "isNamespace": false }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        { "name": "createUser", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "reexport" },
+        { "name": "getUserById", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "reexport" },
+        { "name": "updateUser", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "reexport" },
+        { "name": "login", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "reexport" },
+        { "name": "validateToken", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "reexport" },
+        { "name": "refreshToken", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "reexport" },
+        { "name": "User", "alias": null, "isDefault": false, "isTypeOnly": true, "kind": "reexport" },
+        { "name": "CreateUserInput", "alias": null, "isDefault": false, "isTypeOnly": true, "kind": "reexport" },
+        { "name": "AuthResult", "alias": null, "isDefault": false, "isTypeOnly": true, "kind": "reexport" },
+        { "name": "TokenPayload", "alias": null, "isDefault": false, "isTypeOnly": true, "kind": "reexport" }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:src/services/userService.ts": {
+      "id": "file:src/services/userService.ts",
+      "type": "file",
+      "name": "userService.ts",
+      "filePath": "src/services/userService.ts",
+      "line": 1,
+      "endLine": 35,
+      "imports": [
+        {
+          "source": "../database",
+          "items": [
+            { "name": "db", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "query", "alias": null, "isDefault": false, "isNamespace": false }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/user",
+          "items": [
+            { "name": "User", "alias": null, "isDefault": false, "isNamespace": false },
+            { "name": "CreateUserInput", "alias": null, "isDefault": false, "isNamespace": false }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../utils/crypto",
+          "items": [
+            { "name": "hashPassword", "alias": null, "isDefault": false, "isNamespace": false }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        { "name": "createUser", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "function" },
+        { "name": "getUserById", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "function" },
+        { "name": "updateUser", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "function" },
+        { "name": "deprecatedUserLookup", "alias": null, "isDefault": false, "isTypeOnly": false, "kind": "function" }
+      ],
+      "functions": [
+        "func:src/services/userService.ts:createUser",
+        "func:src/services/userService.ts:getUserById",
+        "func:src/services/userService.ts:updateUser",
+        "func:src/services/userService.ts:deprecatedUserLookup"
+      ],
+      "classes": []
+    }
+  },
+  "connections": [
+    {
+      "id": "conn:src/index.ts->src/services/userService.ts",
+      "sourceId": "file:src/index.ts",
+      "targetId": "file:src/services/userService.ts",
+      "type": "import",
+      "weight": 3,
+      "metadata": {
+        "isCircular": false,
+        "callCount": 3,
+        "locations": [{ "filePath": "src/index.ts", "line": 1, "column": 1 }]
+      }
+    },
+    {
+      "id": "conn:src/index.ts->src/services/authService.ts",
+      "sourceId": "file:src/index.ts",
+      "targetId": "file:src/services/authService.ts",
+      "type": "import",
+      "weight": 3,
+      "metadata": {
+        "isCircular": false,
+        "callCount": 3,
+        "locations": [{ "filePath": "src/index.ts", "line": 2, "column": 1 }]
+      }
+    },
+    {
+      "id": "conn:src/services/authService.ts->src/services/userService.ts",
+      "sourceId": "file:src/services/authService.ts",
+      "targetId": "file:src/services/userService.ts",
+      "type": "import",
+      "weight": 1,
+      "metadata": {
+        "isCircular": false,
+        "callCount": 1,
+        "locations": [{ "filePath": "src/services/authService.ts", "line": 1, "column": 1 }]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "id": "warn:orphaned:deprecatedUserLookup",
+      "category": "orphaned_code",
+      "level": "warning",
+      "title": "Potential dead code: deprecatedUserLookup",
+      "description": "Function 'deprecatedUserLookup' in src/services/userService.ts is exported but never imported or called within the codebase.",
+      "affectedNodes": ["func:src/services/userService.ts:deprecatedUserLookup"],
+      "suggestion": null,
+      "detectedAt": "2026-01-15T00:00:01.000Z"
+    },
+    {
+      "id": "warn:unused-export:generateRandomString",
+      "category": "unused_export",
+      "level": "warning",
+      "title": "Unused export: generateRandomString",
+      "description": "Function 'generateRandomString' is exported from src/utils/crypto.ts but never imported anywhere in the codebase.",
+      "affectedNodes": ["func:src/utils/crypto.ts:generateRandomString"],
+      "suggestion": null,
+      "detectedAt": "2026-01-15T00:00:01.000Z"
+    }
+  ],
+  "clusters": [],
+  "errors": []
+}
