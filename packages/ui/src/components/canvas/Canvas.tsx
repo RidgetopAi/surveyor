@@ -59,13 +59,59 @@ interface FolderLayoutNode {
     folderPath: string;
     fileCount: number;
     functionCount: number;
+    warningCount: number;
   };
+}
+
+/**
+ * Build a map of folder path -> warning count
+ * by examining which folders contain affected nodes
+ */
+function buildFolderWarningCounts(
+  groups: FolderGroup[],
+  warnings: ScanResult['warnings'],
+  nodes: ScanResult['nodes']
+): Map<string, number> {
+  const counts = new Map<string, number>();
+
+  // Initialize all folders with 0
+  for (const group of groups) {
+    counts.set(group.path, 0);
+  }
+
+  // Count warnings per folder based on affected nodes
+  for (const warning of warnings) {
+    const foldersAffected = new Set<string>();
+
+    for (const nodeId of warning.affectedNodes) {
+      const node = nodes[nodeId];
+      if (node) {
+        // Extract folder path from file path
+        const parts = node.filePath.split('/');
+        const folderPath = parts.length > 1 ? parts.slice(0, -1).join('/') : '.';
+        foldersAffected.add(folderPath);
+      }
+    }
+
+    // Increment count for each affected folder (once per warning)
+    for (const folder of foldersAffected) {
+      counts.set(folder, (counts.get(folder) || 0) + 1);
+    }
+  }
+
+  return counts;
 }
 
 /**
  * Calculate layout for folder nodes in a grid
  */
-function calculateFolderGridLayout(groups: FolderGroup[]): FolderLayoutNode[] {
+function calculateFolderGridLayout(
+  groups: FolderGroup[],
+  warnings: ScanResult['warnings'],
+  nodes: ScanResult['nodes']
+): FolderLayoutNode[] {
+  const warningCounts = buildFolderWarningCounts(groups, warnings, nodes);
+
   return groups.map((group, index) => {
     const col = index % FOLDER_LAYOUT.columns;
     const row = Math.floor(index / FOLDER_LAYOUT.columns);
@@ -84,6 +130,7 @@ function calculateFolderGridLayout(groups: FolderGroup[]): FolderLayoutNode[] {
         folderPath: group.path,
         fileCount: group.files.length,
         functionCount: totalFunctions,
+        warningCount: warningCounts.get(group.path) || 0,
       },
     };
   });
@@ -118,7 +165,7 @@ function CanvasInner({ scanData }: CanvasProps) {
 
     // Root view: show folders
     if (currentFolder === null) {
-      const folderNodes = calculateFolderGridLayout(groups);
+      const folderNodes = calculateFolderGridLayout(groups, scanData.warnings, scanData.nodes);
       return {
         displayNodes: folderNodes as Node[],
         displayEdges: [] as Edge[],

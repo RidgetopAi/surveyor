@@ -10,6 +10,7 @@ export interface FolderNodeDataProps {
   folderPath: string;
   fileCount: number;
   functionCount: number;
+  warningCount: number;
   isFaded?: boolean;
   isHighlighted?: boolean;
   [key: string]: unknown;
@@ -17,22 +18,29 @@ export interface FolderNodeDataProps {
 
 /**
  * Folder cluster node component for React Flow
- * Shows folder name with file/function counts
+ * Shows folder name with file/function counts and warning badge
  * Click to drill down into the folder
  */
 function FolderNodeComponent({ data }: { data: FolderNodeDataProps }) {
-  const { isFaded, isHighlighted } = data;
+  const { isFaded, isHighlighted, warningCount } = data;
 
   return (
     <div
       className={`
-        bg-surface-1 border-2 border-dashed rounded-xl px-4 py-3 min-w-[160px]
+        relative bg-surface-1 border-2 border-dashed rounded-xl px-4 py-3 min-w-[160px]
         cursor-pointer hover:border-accent-primary hover:bg-surface-2
         transition-all duration-150
         ${isFaded ? 'opacity-30' : 'opacity-100'}
         ${isHighlighted ? 'border-accent-primary bg-surface-2' : 'border-surface-3'}
       `}
     >
+      {/* Warning badge */}
+      {warningCount > 0 && (
+        <div className="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-status-warning text-surface-0 text-xs font-semibold">
+          {warningCount}
+        </div>
+      )}
+
       <Handle
         type="target"
         position={Position.Left}

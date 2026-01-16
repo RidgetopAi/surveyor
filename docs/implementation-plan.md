@@ -380,7 +380,7 @@ Full feature validation. Use Surveyor on Squire. Can you answer "is my architect
 | 2 - Basic Visualization | **COMPLETE** ✓ |
 | 3 - Interactions | **COMPLETE** ✓ |
 | 4 - Behavioral Analysis | **COMPLETE** ✓ |
-| 5 - Warnings | Not started |
+| 5 - Warnings | **COMPLETE** ✓ |
 | 6 - Polish | Not started |
 | 7 - Smart Clustering | Not started |
 | 8 - History & Diff | Not started |

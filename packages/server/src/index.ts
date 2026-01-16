@@ -49,7 +49,7 @@ app.use('/*', serveStatic({ root: './public' }));
 // Start server
 const port = parseInt(process.env.SURVEYOR_PORT || '4000', 10);
 
-console.log(`Surveyor server starting on http://localhost:${port}`);
+console.log(`Serving on: http://localhost:${port}`);
 
 serve({
   fetch: app.fetch,

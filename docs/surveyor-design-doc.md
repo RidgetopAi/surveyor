@@ -1,5 +1,12 @@
 # Surveyor
 
+> **Note**: This is the original v0.1 design document from early January 2026. For current specifications, refer to:
+> - **surveyor-requirements.md** — Authoritative UX and feature requirements
+> - **implementation-plan.md** — Phase-by-phase build plan with current status
+> - **CONTRACTS.md** — Data schemas, naming conventions, folder structure
+>
+> This document is retained for historical context. Terminology note: "crawl" in this doc = "scan" in current implementation.
+
 ## Design Document v0.1
 
 ---
