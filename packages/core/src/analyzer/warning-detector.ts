@@ -239,6 +239,11 @@ function detectFunctionCircularDependencies(_nodes: NodeMap, _detectedAt: string
 
 /**
  * Detect orphaned code (functions not called by anything)
+ *
+ * Uses reference tracking to accurately detect:
+ * - Functions called within the same file
+ * - Functions passed as callbacks (e.g., process.on('SIGTERM', shutdown))
+ * - Functions referenced in object literals
  */
 function detectOrphanedCode(
   nodes: NodeMap,
@@ -275,6 +280,14 @@ function detectOrphanedCode(
     }
   }
 
+  // Build a map of fileId -> functions in that file for quick lookup
+  const functionsByFile = new Map<string, FunctionNode[]>();
+  for (const func of functionNodes) {
+    const existing = functionsByFile.get(func.parentFileId) || [];
+    existing.push(func);
+    functionsByFile.set(func.parentFileId, existing);
+  }
+
   // Find functions that are not exported and not commonly named entry points
   const entryPointPatterns = [
     /^main$/i,
@@ -307,12 +320,29 @@ function detectOrphanedCode(
       continue;
     }
 
-    // Check if this function name is used anywhere (crude heuristic)
-    // A proper implementation would trace actual call sites
-    const isLikelyUsed = importedNames.has(func.name) || exportedNames.has(func.name);
-    if (isLikelyUsed) continue;
+    // Check if imported/exported elsewhere (cross-file usage)
+    const isUsedCrossFile = importedNames.has(func.name) || exportedNames.has(func.name);
+    if (isUsedCrossFile) continue;
 
-    // This function might be orphaned
+    // Check if used within the same file (intra-file usage)
+    const parentFile = nodes[func.parentFileId] as FileNode | undefined;
+    if (parentFile) {
+      // Check top-level references (e.g., process.on('SIGTERM', shutdown))
+      if (parentFile.topLevelReferences?.includes(func.name)) {
+        continue;
+      }
+
+      // Check if any other function in the same file references this function
+      const siblingFunctions = functionsByFile.get(func.parentFileId) || [];
+      const isCalledBySibling = siblingFunctions.some(
+        (sibling) =>
+          sibling.id !== func.id && // Don't check self-references
+          sibling.references?.includes(func.name)
+      );
+      if (isCalledBySibling) continue;
+    }
+
+    // This function is likely orphaned
     warnings.push({
       id: uuidv4(),
       category: WarningCategory.OrphanedCode,

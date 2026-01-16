@@ -31,6 +31,8 @@ export interface FileNode extends BaseNode {
   exports: ExportInfo[];
   functions: string[];
   classes: string[];
+  /** Identifiers referenced at file's top-level scope (outside functions/classes) */
+  topLevelReferences: string[];
 }
 
 export interface FunctionNode extends BaseNode {
@@ -44,6 +46,8 @@ export interface FunctionNode extends BaseNode {
   behavioral: BehavioralSummary | null;
   /** Function source code (included for browser-based analysis) */
   source?: string;
+  /** Identifiers referenced within this function's body (for call graph analysis) */
+  references: string[];
 }
 
 export interface ClassNode extends BaseNode {

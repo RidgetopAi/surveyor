@@ -12,6 +12,7 @@
 import { SourceFile, ClassDeclaration, Scope } from 'ts-morph';
 import type { ClassNode, FunctionNode, PropertyInfo, ParameterInfo } from '../types/node.types.js';
 import { NodeType } from '../types/node.types.js';
+import { extractReferences } from './parse-references.js';
 
 export interface ParseClassesResult {
   classes: ClassNode[];
@@ -90,6 +91,11 @@ function parseMethods(
       defaultValue: param.getInitializer()?.getText() || null,
     }));
 
+    // Extract references from method body, excluding parameter names
+    const paramNames = new Set(params.map(p => p.name));
+    const body = method.getBody();
+    const references = body ? extractReferences(body, paramNames) : [];
+
     const node: FunctionNode = {
       id,
       type: NodeType.Function,
@@ -105,6 +111,7 @@ function parseMethods(
       isAsync: method.isAsync(),
       behavioral: null, // Phase 4
       source: method.getText(),
+      references,
     };
 
     methods.push(node);

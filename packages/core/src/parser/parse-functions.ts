@@ -12,6 +12,7 @@
 import { SourceFile, FunctionDeclaration, ArrowFunction, SyntaxKind } from 'ts-morph';
 import type { FunctionNode, ParameterInfo } from '../types/node.types.js';
 import { NodeType } from '../types/node.types.js';
+import { extractFunctionReferences } from './parse-references.js';
 
 export interface ParseFunctionsResult {
   functions: FunctionNode[];
@@ -70,6 +71,7 @@ export function parseFunctions(
       isAsync: func.isAsync(),
       behavioral: null, // Phase 4
       source: func.getText(),
+      references: extractFunctionReferences(func),
     };
 
     functions.push(node);
@@ -104,6 +106,7 @@ export function parseFunctions(
           isAsync: arrowFunc.isAsync(),
           behavioral: null, // Phase 4
           source: statement.getText(),
+          references: extractFunctionReferences(arrowFunc),
         };
 
         functions.push(node);

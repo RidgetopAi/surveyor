@@ -27,6 +27,7 @@ import { parseImports } from './parse-imports.js';
 import { parseExports } from './parse-exports.js';
 import { parseFunctions } from './parse-functions.js';
 import { parseClasses } from './parse-classes.js';
+import { extractTopLevelReferences } from './parse-references.js';
 
 export interface ScanOptions {
   verbose?: boolean;
@@ -219,12 +220,18 @@ function parseSourceFile(
     relativePath
   );
 
-  // Parse classes
-  const { classes: classNodes, classIds } = parseClasses(
+  // Parse classes (includes methods as FunctionNodes)
+  const { classes: classNodes, classIds, methods: methodNodes } = parseClasses(
     sourceFile,
     fileId,
     relativePath
   );
+
+  // Merge standalone functions and class methods
+  const allFunctionNodes = [...functionNodes, ...methodNodes];
+
+  // Extract top-level references (identifiers used outside functions/classes)
+  const topLevelReferences = extractTopLevelReferences(sourceFile);
 
   // Build FileNode
   const fileNode: FileNode = {
@@ -238,9 +245,10 @@ function parseSourceFile(
     exports,
     functions: functionIds,
     classes: classIds,
+    topLevelReferences,
   };
 
-  return { fileNode, functionNodes, classNodes };
+  return { fileNode, functionNodes: allFunctionNodes, classNodes };
 }
 
 /**
