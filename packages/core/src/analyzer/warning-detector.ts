@@ -15,6 +15,7 @@ import { WarningLevel, WarningCategory } from '../types/warning.types.js';
 import { NodeType } from '../types/node.types.js';
 import type { WarningDetectorOptions, PathAliases } from '../types/analyzer.types.js';
 import { DEFAULT_WARNING_OPTIONS } from '../types/analyzer.types.js';
+import { scanNonTsImports, mergeImportMaps } from './scan-non-ts-imports.js';
 
 /**
  * Next.js framework conventions - exports that are used by the framework
@@ -132,10 +133,10 @@ function resolvePathAlias(source: string, pathAliases: PathAliases): string {
 /**
  * Detect all warnings in a scan result
  */
-export function detectWarnings(
+export async function detectWarnings(
   scanResult: ScanResult,
   options: WarningDetectorOptions = {}
-): Warning[] {
+): Promise<Warning[]> {
   const opts = { ...DEFAULT_WARNING_OPTIONS, ...options };
   const warnings: Warning[] = [];
   const now = new Date().toISOString();
@@ -155,9 +156,9 @@ export function detectWarnings(
     warnings.push(...detectOrphanedCode(scanResult.nodes, opts, now));
   }
 
-  // Unused exports
+  // Unused exports - scan non-TS files for imports too
   if (opts.detectUnusedExports) {
-    warnings.push(...detectUnusedExports(scanResult.nodes, opts, now));
+    warnings.push(...await detectUnusedExports(scanResult.nodes, scanResult.projectPath, opts, now));
   }
 
   // Large files
@@ -472,12 +473,14 @@ function buildStarReexportMap(
 
 /**
  * Detect exports that aren't imported anywhere in the project
+ * Scans both TypeScript files and non-TS files (.svelte, .vue, .astro, etc.)
  */
-function detectUnusedExports(
+async function detectUnusedExports(
   nodes: NodeMap,
+  projectPath: string,
   opts: Required<WarningDetectorOptions>,
   detectedAt: string
-): Warning[] {
+): Promise<Warning[]> {
   const warnings: Warning[] = [];
 
   const fileNodes = Object.values(nodes).filter(
@@ -491,6 +494,10 @@ function detectUnusedExports(
   // Collect all imports across the project
   // Maps normalized file path -> set of imported names
   const allImportedNames = new Map<string, Set<string>>();
+
+  // Scan non-TS files for imports (.svelte, .vue, .astro, etc.)
+  const nonTsImports = await scanNonTsImports(projectPath, opts.pathAliases);
+  mergeImportMaps(allImportedNames, nonTsImports);
 
   for (const file of fileNodes) {
     for (const imp of file.imports) {

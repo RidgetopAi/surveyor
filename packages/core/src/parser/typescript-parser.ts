@@ -114,32 +114,97 @@ function stripJsonComments(content: string): string {
 }
 
 /**
- * Read path aliases from tsconfig.json
- * Searches for tsconfig.json in the project root
+ * Read a single tsconfig.json and extract path aliases
  */
-function readPathAliases(projectPath: string): PathAliases {
-  const tsconfigPath = path.join(projectPath, 'tsconfig.json');
-
+function readTsconfigPaths(tsconfigPath: string): PathAliases | null {
   try {
     if (!fs.existsSync(tsconfigPath)) {
-      return {};
+      return null;
     }
 
     const content = fs.readFileSync(tsconfigPath, 'utf-8');
-    // Remove comments (tsconfig allows them) while respecting string boundaries
     const jsonContent = stripJsonComments(content);
     const tsconfig = JSON.parse(jsonContent);
 
     const paths = tsconfig?.compilerOptions?.paths;
     if (!paths || typeof paths !== 'object') {
-      return {};
+      return null;
     }
 
     return paths as PathAliases;
   } catch {
-    // Silently fail - not all projects have tsconfig or valid JSON
-    return {};
+    return null;
   }
+}
+
+/**
+ * Find all tsconfig.json files in a directory (recursively)
+ * Returns paths relative to projectPath
+ */
+function findTsconfigFiles(projectPath: string): string[] {
+  const configs: string[] = [];
+  const ignorePatterns = ['node_modules', 'dist', 'build', '.git', 'coverage'];
+
+  function scan(dir: string) {
+    const tsconfigPath = path.join(dir, 'tsconfig.json');
+    if (fs.existsSync(tsconfigPath)) {
+      configs.push(tsconfigPath);
+    }
+
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory() && !ignorePatterns.includes(entry.name)) {
+          scan(path.join(dir, entry.name));
+        }
+      }
+    } catch {
+      // Ignore permission errors etc.
+    }
+  }
+
+  scan(projectPath);
+  return configs;
+}
+
+/**
+ * Read path aliases from all tsconfig.json files in the project
+ * Handles monorepo structures with multiple tsconfig files
+ *
+ * For each tsconfig, adjusts path targets to be relative to project root.
+ * E.g., web/tsconfig.json with "@/*": ["./src/*"] becomes "@/*": ["web/src/*"]
+ */
+function readPathAliases(projectPath: string): PathAliases {
+  const allPaths: PathAliases = {};
+  const tsconfigFiles = findTsconfigFiles(projectPath);
+
+  for (const tsconfigPath of tsconfigFiles) {
+    const paths = readTsconfigPaths(tsconfigPath);
+    if (!paths) continue;
+
+    // Get the directory containing this tsconfig, relative to project root
+    const tsconfigDir = path.relative(projectPath, path.dirname(tsconfigPath));
+
+    for (const [alias, targets] of Object.entries(paths)) {
+      // Adjust targets to be relative to project root
+      const adjustedTargets = targets.map((target) => {
+        // Remove leading ./
+        const cleanTarget = target.replace(/^\.\//, '');
+        // Prefix with tsconfig directory
+        return tsconfigDir ? `${tsconfigDir}/${cleanTarget}` : cleanTarget;
+      });
+
+      // If this alias already exists, add these targets to it
+      // More specific paths (longer prefixes) should come first for matching
+      if (allPaths[alias]) {
+        allPaths[alias] = [...adjustedTargets, ...allPaths[alias]];
+      } else {
+        allPaths[alias] = adjustedTargets;
+      }
+    }
+  }
+
+  return allPaths;
 }
 
 /**
@@ -433,7 +498,7 @@ export async function scanProject(
       },
     };
 
-    result.warnings = detectWarnings(result, warningOptions);
+    result.warnings = await detectWarnings(result, warningOptions);
     updateWarningStats(result);
 
     if (verbose) {
