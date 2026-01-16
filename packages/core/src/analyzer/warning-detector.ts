@@ -13,8 +13,121 @@ import type { ScanResult, NodeMap, FileNode, FunctionNode } from '../types/index
 import type { Warning } from '../types/warning.types.js';
 import { WarningLevel, WarningCategory } from '../types/warning.types.js';
 import { NodeType } from '../types/node.types.js';
-import type { WarningDetectorOptions } from '../types/analyzer.types.js';
+import type { WarningDetectorOptions, PathAliases } from '../types/analyzer.types.js';
 import { DEFAULT_WARNING_OPTIONS } from '../types/analyzer.types.js';
+
+/**
+ * Next.js framework conventions - exports that are used by the framework
+ * Maps export name -> file patterns where they're valid
+ */
+const NEXTJS_CONVENTIONS: Record<string, RegExp[]> = {
+  // Route segment config
+  dynamic: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/, /route\.(tsx?|jsx?)$/],
+  revalidate: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/, /route\.(tsx?|jsx?)$/],
+  fetchCache: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/, /route\.(tsx?|jsx?)$/],
+  runtime: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/, /route\.(tsx?|jsx?)$/],
+  preferredRegion: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/, /route\.(tsx?|jsx?)$/],
+  maxDuration: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/, /route\.(tsx?|jsx?)$/],
+
+  // Metadata
+  metadata: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/],
+  generateMetadata: [/page\.(tsx?|jsx?)$/, /layout\.(tsx?|jsx?)$/],
+  viewport: [/layout\.(tsx?|jsx?)$/],
+  generateViewport: [/layout\.(tsx?|jsx?)$/],
+
+  // Static generation
+  generateStaticParams: [/page\.(tsx?|jsx?)$/],
+
+  // API routes
+  GET: [/route\.(tsx?|jsx?)$/],
+  POST: [/route\.(tsx?|jsx?)$/],
+  PUT: [/route\.(tsx?|jsx?)$/],
+  DELETE: [/route\.(tsx?|jsx?)$/],
+  PATCH: [/route\.(tsx?|jsx?)$/],
+  HEAD: [/route\.(tsx?|jsx?)$/],
+  OPTIONS: [/route\.(tsx?|jsx?)$/],
+
+  // Middleware
+  middleware: [/middleware\.(tsx?|jsx?)$/],
+  config: [/middleware\.(tsx?|jsx?)$/, /route\.(tsx?|jsx?)$/],
+
+  // Special files
+  manifest: [/manifest\.(tsx?|jsx?)$/],
+
+  // Error/Loading boundaries and special files (default exports)
+  default: [
+    /error\.(tsx?|jsx?)$/,
+    /loading\.(tsx?|jsx?)$/,
+    /not-found\.(tsx?|jsx?)$/,
+    /layout\.(tsx?|jsx?)$/,
+    /page\.(tsx?|jsx?)$/,
+    /template\.(tsx?|jsx?)$/,
+    /manifest\.(tsx?|jsx?)$/,
+  ],
+};
+
+/**
+ * Config file patterns - exports from these are used by build tools
+ */
+const CONFIG_FILE_PATTERNS = [
+  /^next\.config\.(ts|js|mjs)$/,
+  /^vitest\.config\.(ts|js|mjs)$/,
+  /^vite\.config\.(ts|js|mjs)$/,
+  /^jest\.config\.(ts|js|mjs)$/,
+  /^tailwind\.config\.(ts|js|mjs)$/,
+  /^postcss\.config\.(ts|js|mjs)$/,
+  /^eslint\.config\.(ts|js|mjs)$/,
+  /^tsconfig\..*\.json$/,
+];
+
+/**
+ * Check if an export is a framework convention
+ */
+function isFrameworkConvention(exportName: string, filePath: string): boolean {
+  // Check if it's a config file
+  const fileName = filePath.split('/').pop() || '';
+  if (CONFIG_FILE_PATTERNS.some(p => p.test(fileName))) {
+    return true;
+  }
+
+  // Check Next.js conventions
+  const patterns = NEXTJS_CONVENTIONS[exportName];
+  if (patterns) {
+    return patterns.some(p => p.test(filePath));
+  }
+
+  return false;
+}
+
+/**
+ * Resolve a path alias to its actual path
+ * e.g., "@/components/Foo" with paths {"@/*": ["./src/*"]} -> "src/components/Foo"
+ */
+function resolvePathAlias(source: string, pathAliases: PathAliases): string {
+  for (const [alias, targets] of Object.entries(pathAliases)) {
+    // Convert alias pattern to regex (e.g., "@/*" -> /^@\/(.*)$/)
+    const aliasPattern = alias
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')  // Escape special regex chars
+      .replace(/\\\*/g, '(.*)');  // Convert * to capture group
+
+    const regex = new RegExp(`^${aliasPattern}$`);
+    const match = source.match(regex);
+
+    if (match && targets.length > 0) {
+      // Use the first target path
+      const target = targets[0]!;
+      // Replace * with the captured group
+      let resolved = target;
+      if (match[1] !== undefined) {
+        resolved = target.replace('*', match[1]);
+      }
+      // Remove leading ./ if present
+      return resolved.replace(/^\.\//, '');
+    }
+  }
+
+  return source;
+}
 
 /**
  * Detect all warnings in a scan result
@@ -29,7 +142,7 @@ export function detectWarnings(
 
   // Circular dependencies (file level)
   if (opts.detectFileCircular) {
-    warnings.push(...detectFileCircularDependencies(scanResult.nodes, now));
+    warnings.push(...detectFileCircularDependencies(scanResult.nodes, opts, now));
   }
 
   // Circular dependencies (function level) - more expensive
@@ -39,12 +152,12 @@ export function detectWarnings(
 
   // Orphaned code
   if (opts.detectOrphaned) {
-    warnings.push(...detectOrphanedCode(scanResult.nodes, now));
+    warnings.push(...detectOrphanedCode(scanResult.nodes, opts, now));
   }
 
   // Unused exports
   if (opts.detectUnusedExports) {
-    warnings.push(...detectUnusedExports(scanResult.nodes, now));
+    warnings.push(...detectUnusedExports(scanResult.nodes, opts, now));
   }
 
   // Large files
@@ -58,7 +171,11 @@ export function detectWarnings(
 /**
  * Detect circular dependencies at file level (import cycles)
  */
-function detectFileCircularDependencies(nodes: NodeMap, detectedAt: string): Warning[] {
+function detectFileCircularDependencies(
+  nodes: NodeMap,
+  opts: Required<WarningDetectorOptions>,
+  detectedAt: string
+): Warning[] {
   const warnings: Warning[] = [];
   const fileNodes = Object.values(nodes).filter(
     (n): n is FileNode => n.type === NodeType.File
@@ -71,7 +188,7 @@ function detectFileCircularDependencies(nodes: NodeMap, detectedAt: string): War
     const deps = new Set<string>();
     for (const imp of file.imports) {
       // Resolve import source to file ID
-      const targetId = resolveImportToFileId(imp.source, file.filePath, nodes);
+      const targetId = resolveImportToFileId(imp.source, file.filePath, nodes, opts.pathAliases);
       if (targetId) {
         deps.add(targetId);
       }
@@ -123,7 +240,11 @@ function detectFunctionCircularDependencies(_nodes: NodeMap, _detectedAt: string
 /**
  * Detect orphaned code (functions not called by anything)
  */
-function detectOrphanedCode(nodes: NodeMap, detectedAt: string): Warning[] {
+function detectOrphanedCode(
+  nodes: NodeMap,
+  opts: Required<WarningDetectorOptions>,
+  detectedAt: string
+): Warning[] {
   const warnings: Warning[] = [];
 
   const fileNodes = Object.values(nodes).filter(
@@ -181,6 +302,11 @@ function detectOrphanedCode(nodes: NodeMap, detectedAt: string): Warning[] {
     // Skip common utility patterns
     if (func.name.startsWith('_')) continue; // Private by convention
 
+    // Skip framework conventions
+    if (opts.frameworkConventions && isFrameworkConvention(func.name, func.filePath)) {
+      continue;
+    }
+
     // Check if this function name is used anywhere (crude heuristic)
     // A proper implementation would trace actual call sites
     const isLikelyUsed = importedNames.has(func.name) || exportedNames.has(func.name);
@@ -208,26 +334,145 @@ function detectOrphanedCode(nodes: NodeMap, detectedAt: string): Warning[] {
 }
 
 /**
+ * Re-export info: tracks both the exported name (what consumers import) and original name (what source exports)
+ */
+interface ReexportInfo {
+  source: string;        // Normalized source path
+  originalName: string;  // Name in the source file (e.g., 'default', 'Foo')
+}
+
+/**
+ * Build a map of re-exports from barrel files
+ * Returns: Map<barrelFilePath, Map<exportedName, ReexportInfo>>
+ * For index files, maps both 'src/foo/index' and 'src/foo' to the same exports
+ *
+ * Handles:
+ * - Named re-exports: export { Foo } from './Foo' -> maps 'Foo' to {source:'./Foo', originalName:'Foo'}
+ * - Aliased re-exports: export { Foo as Bar } from './Foo' -> maps 'Bar' to {source:'./Foo', originalName:'Foo'}
+ * - Default re-exports: export { default as X } from './Y' -> maps 'X' to {source:'./Y', originalName:'default'}
+ */
+function buildReexportMap(
+  fileNodes: FileNode[],
+  pathAliases: PathAliases
+): Map<string, Map<string, ReexportInfo>> {
+  const reexportMap = new Map<string, Map<string, ReexportInfo>>();
+
+  for (const file of fileNodes) {
+    // Look for re-export entries that have a source path
+    const reexports: Array<{ exportedName: string; info: ReexportInfo }> = [];
+
+    for (const exp of file.exports) {
+      if (exp.kind === 'reexport' && exp.source && exp.name !== '*') {
+        // Resolve and normalize the original source
+        const resolvedSource = resolvePathAlias(exp.source, pathAliases);
+        const originalSource = normalizeImportSource(resolvedSource, file.filePath);
+
+        // exportedName is what consumers import (alias if present, otherwise original name)
+        // originalName is what the source file exports
+        const exportedName = exp.alias || exp.name;
+        const originalName = exp.name;
+
+        reexports.push({
+          exportedName,
+          info: { source: originalSource, originalName }
+        });
+      }
+    }
+
+    if (reexports.length > 0) {
+      const [normalizedFile, directoryPath] = getNormalizedPaths(file.filePath);
+
+      // Add under the full path
+      if (!reexportMap.has(normalizedFile)) {
+        reexportMap.set(normalizedFile, new Map());
+      }
+      for (const { exportedName, info } of reexports) {
+        reexportMap.get(normalizedFile)!.set(exportedName, info);
+      }
+
+      // Also add under the directory path for index files
+      if (directoryPath) {
+        if (!reexportMap.has(directoryPath)) {
+          reexportMap.set(directoryPath, new Map());
+        }
+        for (const { exportedName, info } of reexports) {
+          reexportMap.get(directoryPath)!.set(exportedName, info);
+        }
+      }
+    }
+  }
+
+  return reexportMap;
+}
+
+/**
+ * Build a map of star re-exports: barrel file path -> list of source paths
+ * Used to handle "export * from './utils'" patterns
+ */
+function buildStarReexportMap(
+  fileNodes: FileNode[],
+  pathAliases: PathAliases
+): Map<string, string[]> {
+  const starReexportMap = new Map<string, string[]>();
+
+  for (const file of fileNodes) {
+    const starSources: string[] = [];
+
+    for (const exp of file.exports) {
+      // Star re-exports have name === '*'
+      if (exp.kind === 'reexport' && exp.name === '*' && exp.source) {
+        const resolvedSource = resolvePathAlias(exp.source, pathAliases);
+        const originalSource = normalizeImportSource(resolvedSource, file.filePath);
+        starSources.push(originalSource);
+      }
+    }
+
+    if (starSources.length > 0) {
+      const [normalizedFile, directoryPath] = getNormalizedPaths(file.filePath);
+
+      starReexportMap.set(normalizedFile, starSources);
+      if (directoryPath) {
+        starReexportMap.set(directoryPath, starSources);
+      }
+    }
+  }
+
+  return starReexportMap;
+}
+
+/**
  * Detect exports that aren't imported anywhere in the project
  */
-function detectUnusedExports(nodes: NodeMap, detectedAt: string): Warning[] {
+function detectUnusedExports(
+  nodes: NodeMap,
+  opts: Required<WarningDetectorOptions>,
+  detectedAt: string
+): Warning[] {
   const warnings: Warning[] = [];
 
   const fileNodes = Object.values(nodes).filter(
     (n): n is FileNode => n.type === NodeType.File
   );
 
+  // Build re-export maps to track barrel file re-exports
+  const reexportMap = buildReexportMap(fileNodes, opts.pathAliases);
+  const starReexportMap = buildStarReexportMap(fileNodes, opts.pathAliases);
+
   // Collect all imports across the project
-  const allImportedNames = new Map<string, Set<string>>(); // source -> imported names
+  // Maps normalized file path -> set of imported names
+  const allImportedNames = new Map<string, Set<string>>();
 
   for (const file of fileNodes) {
     for (const imp of file.imports) {
-      // Normalize import source
-      const source = normalizeImportSource(imp.source, file.filePath);
-      if (!allImportedNames.has(source)) {
-        allImportedNames.set(source, new Set());
+      // Resolve path alias first, then normalize
+      const resolvedSource = resolvePathAlias(imp.source, opts.pathAliases);
+      const normalizedSource = normalizeImportSource(resolvedSource, file.filePath);
+
+      if (!allImportedNames.has(normalizedSource)) {
+        allImportedNames.set(normalizedSource, new Set());
       }
-      const names = allImportedNames.get(source)!;
+      const names = allImportedNames.get(normalizedSource)!;
+
       for (const item of imp.items) {
         if (item.isNamespace) {
           // Namespace import uses everything
@@ -236,6 +481,31 @@ function detectUnusedExports(nodes: NodeMap, detectedAt: string): Warning[] {
           names.add('default');
         } else {
           names.add(item.name);
+
+          // If this import is from a barrel file with named re-exports, credit the original source
+          const barrelReexports = reexportMap.get(normalizedSource);
+          if (barrelReexports) {
+            const reexportInfo = barrelReexports.get(item.name);
+            if (reexportInfo) {
+              if (!allImportedNames.has(reexportInfo.source)) {
+                allImportedNames.set(reexportInfo.source, new Set());
+              }
+              // Credit with the ORIGINAL name (what the source file exports), not the alias
+              allImportedNames.get(reexportInfo.source)!.add(reexportInfo.originalName);
+            }
+          }
+
+          // If this import is from a barrel file with star re-exports, credit those sources too
+          const starSources = starReexportMap.get(normalizedSource);
+          if (starSources) {
+            for (const starSource of starSources) {
+              if (!allImportedNames.has(starSource)) {
+                allImportedNames.set(starSource, new Set());
+              }
+              // Credit this name to the star-exported source
+              allImportedNames.get(starSource)!.add(item.name);
+            }
+          }
         }
       }
     }
@@ -261,6 +531,13 @@ function detectUnusedExports(nodes: NodeMap, detectedAt: string): Warning[] {
       if (exp.isTypeOnly || exp.kind === 'type' || exp.kind === 'interface') continue;
 
       const exportName = exp.isDefault ? 'default' : exp.name;
+
+      // Skip framework conventions (check both the export name and 'default' for default exports)
+      if (opts.frameworkConventions) {
+        if (isFrameworkConvention(exportName, file.filePath)) {
+          continue;
+        }
+      }
 
       if (!importedFromThisFile.has(exportName)) {
         warnings.push({
@@ -380,10 +657,14 @@ function findCycles(graph: Map<string, Set<string>>): string[][] {
 function resolveImportToFileId(
   source: string,
   currentFilePath: string,
-  nodes: NodeMap
+  nodes: NodeMap,
+  pathAliases: PathAliases
 ): string | null {
-  // Skip external packages
-  if (!source.startsWith('.') && !source.startsWith('/')) {
+  // First try to resolve path alias
+  const resolvedSource = resolvePathAlias(source, pathAliases);
+
+  // Skip external packages (those that don't start with . or / and weren't resolved by alias)
+  if (!resolvedSource.startsWith('.') && !resolvedSource.startsWith('/') && resolvedSource === source) {
     return null;
   }
 
@@ -392,7 +673,7 @@ function resolveImportToFileId(
   );
 
   // Normalize the import path
-  const normalizedSource = normalizeImportSource(source, currentFilePath);
+  const normalizedSource = normalizeImportSource(resolvedSource, currentFilePath);
 
   // Try to find matching file
   for (const file of fileNodes) {
@@ -410,7 +691,8 @@ function resolveImportToFileId(
  */
 function normalizeImportSource(source: string, importingFilePath: string): string {
   if (!source.startsWith('.')) {
-    return source;
+    // Not a relative import - return as-is (already resolved by alias or absolute)
+    return source.replace(/\.(ts|tsx|js|jsx)$/, '');
   }
 
   // Get directory of importing file
@@ -431,15 +713,32 @@ function normalizeImportSource(source: string, importingFilePath: string): strin
     }
   }
 
-  return resolved.join('/');
+  return resolved.join('/').replace(/\.(ts|tsx|js|jsx)$/, '');
 }
 
 /**
  * Normalize a file path for comparison
+ * Also returns the directory form for index files (e.g., src/components/ui/index -> src/components/ui)
  */
 function normalizeFilePath(filePath: string): string {
   // Remove extension
   return filePath.replace(/\.(ts|tsx|js|jsx)$/, '');
+}
+
+/**
+ * Get both the full path and directory path for index files
+ * Returns [normalPath, directoryPath] where directoryPath is null for non-index files
+ */
+function getNormalizedPaths(filePath: string): [string, string | null] {
+  const normalized = normalizeFilePath(filePath);
+
+  // Check if this is an index file
+  if (normalized.endsWith('/index')) {
+    // Return both the full path and the directory path
+    return [normalized, normalized.slice(0, -6)]; // Remove '/index'
+  }
+
+  return [normalized, null];
 }
 
 /**

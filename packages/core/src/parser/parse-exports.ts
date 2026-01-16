@@ -37,23 +37,36 @@ export function parseExports(sourceFile: SourceFile): ExportInfo[] {
     }
   }
 
-  // Re-exports (export { x } from './module')
+  // Re-exports (export { x } from './module' and export * from './module')
   const exportDeclarations = sourceFile.getExportDeclarations();
   for (const exportDecl of exportDeclarations) {
     const moduleSpecifier = exportDecl.getModuleSpecifierValue();
     if (moduleSpecifier) {
-      // This is a re-export
-      const namedExports = exportDecl.getNamedExports();
-      for (const named of namedExports) {
-        const exportName = named.getName();
-        const aliasNode = named.getAliasNode();
+      // Check for star re-export (export * from './module')
+      if (exportDecl.isNamespaceExport()) {
         exports.push({
-          name: exportName,
-          alias: aliasNode ? aliasNode.getText() : null,
+          name: '*',
+          alias: null,
           isDefault: false,
           isTypeOnly: exportDecl.isTypeOnly(),
           kind: 'reexport',
+          source: moduleSpecifier,
         });
+      } else {
+        // Named re-exports (export { x, y } from './module')
+        const namedExports = exportDecl.getNamedExports();
+        for (const named of namedExports) {
+          const exportName = named.getName();
+          const aliasNode = named.getAliasNode();
+          exports.push({
+            name: exportName,
+            alias: aliasNode ? aliasNode.getText() : null,
+            isDefault: false,
+            isTypeOnly: exportDecl.isTypeOnly(),
+            kind: 'reexport',
+            source: moduleSpecifier,
+          });
+        }
       }
     }
   }

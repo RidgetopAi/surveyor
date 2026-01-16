@@ -147,6 +147,7 @@ describe('parseExports', () => {
       isDefault: false,
       isTypeOnly: false,
       kind: 'reexport',
+      source: './other',
     });
     expect(exports[1]).toEqual({
       name: 'bar',
@@ -154,6 +155,7 @@ describe('parseExports', () => {
       isDefault: false,
       isTypeOnly: false,
       kind: 'reexport',
+      source: './other',
     });
   });
 
@@ -171,6 +173,7 @@ describe('parseExports', () => {
       isDefault: false,
       isTypeOnly: false,
       kind: 'reexport',
+      source: './other',
     });
   });
 

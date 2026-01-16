@@ -13,13 +13,14 @@ import { Project, SourceFile } from 'ts-morph';
 import { glob } from 'glob';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import * as fs from 'fs';
 
 import type { ScanResult, ScanStats, ScanError } from '../types/scan.types.js';
 import { ScanStatus } from '../types/scan.types.js';
 import type { FileNode, FunctionNode, ClassNode, NodeMap } from '../types/node.types.js';
 import { NodeType } from '../types/node.types.js';
 import { WarningLevel } from '../types/warning.types.js';
-import type { WarningDetectorOptions } from '../types/analyzer.types.js';
+import type { WarningDetectorOptions, PathAliases } from '../types/analyzer.types.js';
 import { detectWarnings, updateWarningStats } from '../analyzer/warning-detector.js';
 
 import { parseImports } from './parse-imports.js';
@@ -33,6 +34,111 @@ export interface ScanOptions {
   skipWarnings?: boolean;
   /** Warning detector options */
   warningOptions?: WarningDetectorOptions;
+}
+
+/**
+ * Strip JSON comments while respecting string boundaries
+ * Handles both line comments (//) and block comments
+ * Does NOT strip comments inside string literals
+ */
+function stripJsonComments(content: string): string {
+  const result: string[] = [];
+  let i = 0;
+  let inString = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  while (i < content.length) {
+    const char = content[i]!;
+    const nextChar = content[i + 1];
+
+    // Handle string boundaries (only when not in a comment)
+    if (!inLineComment && !inBlockComment) {
+      if (char === '"' && (i === 0 || content[i - 1] !== '\\')) {
+        inString = !inString;
+        result.push(char);
+        i++;
+        continue;
+      }
+    }
+
+    // When inside a string, just copy characters
+    if (inString) {
+      result.push(char);
+      i++;
+      continue;
+    }
+
+    // Handle line comment start
+    if (!inBlockComment && char === '/' && nextChar === '/') {
+      inLineComment = true;
+      i += 2;
+      continue;
+    }
+
+    // Handle line comment end (newline)
+    if (inLineComment && (char === '\n' || char === '\r')) {
+      inLineComment = false;
+      result.push(char); // Keep the newline
+      i++;
+      continue;
+    }
+
+    // Handle block comment start
+    if (!inLineComment && char === '/' && nextChar === '*') {
+      inBlockComment = true;
+      i += 2;
+      continue;
+    }
+
+    // Handle block comment end
+    if (inBlockComment && char === '*' && nextChar === '/') {
+      inBlockComment = false;
+      i += 2;
+      continue;
+    }
+
+    // Skip characters inside comments
+    if (inLineComment || inBlockComment) {
+      i++;
+      continue;
+    }
+
+    // Regular character - copy it
+    result.push(char);
+    i++;
+  }
+
+  return result.join('');
+}
+
+/**
+ * Read path aliases from tsconfig.json
+ * Searches for tsconfig.json in the project root
+ */
+function readPathAliases(projectPath: string): PathAliases {
+  const tsconfigPath = path.join(projectPath, 'tsconfig.json');
+
+  try {
+    if (!fs.existsSync(tsconfigPath)) {
+      return {};
+    }
+
+    const content = fs.readFileSync(tsconfigPath, 'utf-8');
+    // Remove comments (tsconfig allows them) while respecting string boundaries
+    const jsonContent = stripJsonComments(content);
+    const tsconfig = JSON.parse(jsonContent);
+
+    const paths = tsconfig?.compilerOptions?.paths;
+    if (!paths || typeof paths !== 'object') {
+      return {};
+    }
+
+    return paths as PathAliases;
+  } catch {
+    // Silently fail - not all projects have tsconfig or valid JSON
+    return {};
+  }
 }
 
 /**
@@ -303,7 +409,23 @@ export async function scanProject(
     if (verbose) {
       console.log(`\nDetecting warnings...`);
     }
-    result.warnings = detectWarnings(result, options.warningOptions);
+
+    // Read path aliases from tsconfig.json
+    const pathAliases = readPathAliases(absolutePath);
+    if (verbose && Object.keys(pathAliases).length > 0) {
+      console.log(`  Found path aliases: ${Object.keys(pathAliases).join(', ')}`);
+    }
+
+    // Merge path aliases with user-provided options
+    const warningOptions: WarningDetectorOptions = {
+      ...options.warningOptions,
+      pathAliases: {
+        ...pathAliases,
+        ...options.warningOptions?.pathAliases,
+      },
+    };
+
+    result.warnings = detectWarnings(result, warningOptions);
     updateWarningStats(result);
 
     if (verbose) {

@@ -116,6 +116,12 @@ export interface BrowserLLMClient {
 }
 
 /**
+ * Path alias mapping from tsconfig.json paths
+ * e.g., { "@/*": ["./src/*"] }
+ */
+export type PathAliases = Record<string, string[]>;
+
+/**
  * Options for warning detection
  */
 export interface WarningDetectorOptions {
@@ -133,6 +139,10 @@ export interface WarningDetectorOptions {
   largeFileThreshold?: number;
   /** Detect functions with missing type annotations */
   detectMissingTypes?: boolean;
+  /** Path aliases from tsconfig.json for resolving imports */
+  pathAliases?: PathAliases;
+  /** Enable Next.js/framework convention awareness */
+  frameworkConventions?: boolean;
 }
 
 /**
@@ -146,4 +156,6 @@ export const DEFAULT_WARNING_OPTIONS: Required<WarningDetectorOptions> = {
   detectLargeFiles: true,
   largeFileThreshold: 500,
   detectMissingTypes: false,
+  pathAliases: {},
+  frameworkConventions: true,
 };

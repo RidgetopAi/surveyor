@@ -78,6 +78,8 @@ export interface ExportInfo {
   isDefault: boolean;
   isTypeOnly: boolean;
   kind: 'function' | 'class' | 'variable' | 'type' | 'interface' | 'enum' | 'reexport';
+  /** For re-exports, the source module path (e.g., './Foo' in 'export { X } from "./Foo"') */
+  source?: string;
 }
 
 export interface ParameterInfo {
