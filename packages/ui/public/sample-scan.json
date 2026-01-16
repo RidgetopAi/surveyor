@@ -1,0 +1,4589 @@
+{
+  "id": "529efd28-77ed-4d6a-be33-3ba5632b2d78",
+  "projectPath": "/home/ridgetop/projects/surveyor/packages",
+  "projectName": "packages",
+  "status": "complete",
+  "createdAt": "2026-01-16T00:44:46.256Z",
+  "completedAt": "2026-01-16T00:44:47.492Z",
+  "stats": {
+    "totalFiles": 58,
+    "totalFunctions": 53,
+    "totalClasses": 0,
+    "totalConnections": 0,
+    "totalWarnings": 0,
+    "warningsByLevel": {
+      "info": 0,
+      "warning": 0,
+      "error": 0
+    },
+    "nodesByType": {
+      "file": 58,
+      "function": 53,
+      "class": 0,
+      "cluster": 0
+    },
+    "analyzedCount": 0,
+    "pendingAnalysis": 53
+  },
+  "nodes": {
+    "file:core/vitest.config.ts": {
+      "id": "file:core/vitest.config.ts",
+      "type": "file",
+      "name": "vitest.config.ts",
+      "filePath": "core/vitest.config.ts",
+      "line": 1,
+      "endLine": 14,
+      "imports": [
+        {
+          "source": "vitest/config",
+          "items": [
+            {
+              "name": "defineConfig",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "default",
+          "alias": null,
+          "isDefault": true,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/postcss.config.js": {
+      "id": "file:ui/postcss.config.js",
+      "type": "file",
+      "name": "postcss.config.js",
+      "filePath": "ui/postcss.config.js",
+      "line": 1,
+      "endLine": 7,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/tailwind.config.js": {
+      "id": "file:ui/tailwind.config.js",
+      "type": "file",
+      "name": "tailwind.config.js",
+      "filePath": "ui/tailwind.config.js",
+      "line": 1,
+      "endLine": 47,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/vite.config.ts": {
+      "id": "file:ui/vite.config.ts",
+      "type": "file",
+      "name": "vite.config.ts",
+      "filePath": "ui/vite.config.ts",
+      "line": 1,
+      "endLine": 13,
+      "imports": [
+        {
+          "source": "vite",
+          "items": [
+            {
+              "name": "defineConfig",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@vitejs/plugin-react",
+          "items": [
+            {
+              "name": "react",
+              "alias": null,
+              "isDefault": true,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "default",
+          "alias": null,
+          "isDefault": true,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/index.ts": {
+      "id": "file:core/src/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "core/src/index.ts",
+      "line": 1,
+      "endLine": 13,
+      "imports": [],
+      "exports": [
+        {
+          "name": "VERSION",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        },
+        {
+          "name": "ScanStatus",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "ScanResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanStats",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanError",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanDiff",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "NodeType",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "SummarySource",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "BaseNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FileNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FunctionNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClassNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "Node",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "type"
+        },
+        {
+          "name": "NodeMap",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "type"
+        },
+        {
+          "name": "ImportInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ImportItem",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ExportInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ParameterInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "PropertyInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "BehavioralSummary",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "BehavioralFlags",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionType",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Connection",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionMetadata",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionLocation",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "WarningLevel",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "WarningCategory",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Warning",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "WarningSuggestion",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClusteringMethod",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "SmartClusterCategory",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "ClusterHealth",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Cluster",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClusterStats",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "scanProject",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "parseFile",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ScanOptions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "parseImports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "parseExports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "parseFunctions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ParseFunctionsResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "parseClasses",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ParseClassesResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/App.tsx": {
+      "id": "file:ui/src/App.tsx",
+      "type": "file",
+      "name": "App.tsx",
+      "filePath": "ui/src/App.tsx",
+      "line": 1,
+      "endLine": 62,
+      "imports": [
+        {
+          "source": "react",
+          "items": [
+            {
+              "name": "useEffect",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./components/canvas",
+          "items": [
+            {
+              "name": "Canvas",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./stores/scan-store",
+          "items": [
+            {
+              "name": "useScanStore",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "App",
+          "alias": null,
+          "isDefault": true,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/App.tsx:fn:App:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/App.tsx:fn:App:5": {
+      "id": "file:ui/src/App.tsx:fn:App:5",
+      "type": "function",
+      "name": "App",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/App.tsx",
+      "line": 5,
+      "endLine": 59,
+      "parentFileId": "file:ui/src/App.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/main.tsx": {
+      "id": "file:ui/src/main.tsx",
+      "type": "file",
+      "name": "main.tsx",
+      "filePath": "ui/src/main.tsx",
+      "line": 1,
+      "endLine": 11,
+      "imports": [
+        {
+          "source": "react",
+          "items": [
+            {
+              "name": "StrictMode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "react-dom/client",
+          "items": [
+            {
+              "name": "createRoot",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./App",
+          "items": [
+            {
+              "name": "App",
+              "alias": null,
+              "isDefault": true,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./index.css",
+          "items": [],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/analyzer/index.ts": {
+      "id": "file:core/src/analyzer/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "core/src/analyzer/index.ts",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/cli/index.ts": {
+      "id": "file:core/src/cli/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "core/src/cli/index.ts",
+      "line": 1,
+      "endLine": 25,
+      "imports": [
+        {
+          "source": "commander",
+          "items": [
+            {
+              "name": "Command",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../index.js",
+          "items": [
+            {
+              "name": "VERSION",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./commands/scan.js",
+          "items": [
+            {
+              "name": "scanCommand",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/clustering/index.ts": {
+      "id": "file:core/src/clustering/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "core/src/clustering/index.ts",
+      "line": 1,
+      "endLine": 7,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/parser/index.ts": {
+      "id": "file:core/src/parser/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "core/src/parser/index.ts",
+      "line": 1,
+      "endLine": 13,
+      "imports": [],
+      "exports": [
+        {
+          "name": "scanProject",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "parseFile",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ScanOptions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "parseImports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "parseExports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "parseFunctions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ParseFunctionsResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "parseClasses",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ParseClassesResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "scanProject",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "parseFile",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "ScanOptions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "reexport"
+        },
+        {
+          "name": "parseImports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "parseExports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "parseFunctions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "ParseFunctionsResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "reexport"
+        },
+        {
+          "name": "parseClasses",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "ParseClassesResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "reexport"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/parser/parse-classes.ts": {
+      "id": "file:core/src/parser/parse-classes.ts",
+      "type": "file",
+      "name": "parse-classes.ts",
+      "filePath": "core/src/parser/parse-classes.ts",
+      "line": 1,
+      "endLine": 167,
+      "imports": [
+        {
+          "source": "ts-morph",
+          "items": [
+            {
+              "name": "SourceFile",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ClassDeclaration",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Scope",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "ClassNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "FunctionNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "PropertyInfo",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ParameterInfo",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "NodeType",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseClasses",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ParseClassesResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [
+        "file:core/src/parser/parse-classes.ts:fn:generateClassId:25",
+        "file:core/src/parser/parse-classes.ts:fn:generateMethodId:32",
+        "file:core/src/parser/parse-classes.ts:fn:getVisibility:39",
+        "file:core/src/parser/parse-classes.ts:fn:parseProperties:53",
+        "file:core/src/parser/parse-classes.ts:fn:parseMethods:72",
+        "file:core/src/parser/parse-classes.ts:fn:parseClasses:119"
+      ],
+      "classes": []
+    },
+    "file:core/src/parser/parse-classes.ts:fn:generateClassId:25": {
+      "id": "file:core/src/parser/parse-classes.ts:fn:generateClassId:25",
+      "type": "function",
+      "name": "generateClassId",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-classes.ts",
+      "line": 25,
+      "endLine": 27,
+      "parentFileId": "file:core/src/parser/parse-classes.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "fileId",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "line",
+          "type": "number",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-classes.ts:fn:generateMethodId:32": {
+      "id": "file:core/src/parser/parse-classes.ts:fn:generateMethodId:32",
+      "type": "function",
+      "name": "generateMethodId",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-classes.ts",
+      "line": 32,
+      "endLine": 34,
+      "parentFileId": "file:core/src/parser/parse-classes.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "classId",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "line",
+          "type": "number",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-classes.ts:fn:getVisibility:39": {
+      "id": "file:core/src/parser/parse-classes.ts:fn:getVisibility:39",
+      "type": "function",
+      "name": "getVisibility",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-classes.ts",
+      "line": 39,
+      "endLine": 48,
+      "parentFileId": "file:core/src/parser/parse-classes.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "scope",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").Scope",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "\"public\" | \"private\" | \"protected\"",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-classes.ts:fn:parseProperties:53": {
+      "id": "file:core/src/parser/parse-classes.ts:fn:parseProperties:53",
+      "type": "function",
+      "name": "parseProperties",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-classes.ts",
+      "line": 53,
+      "endLine": 67,
+      "parentFileId": "file:core/src/parser/parse-classes.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "classDecl",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").ClassDeclaration",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").PropertyInfo[]",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-classes.ts:fn:parseMethods:72": {
+      "id": "file:core/src/parser/parse-classes.ts:fn:parseMethods:72",
+      "type": "function",
+      "name": "parseMethods",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-classes.ts",
+      "line": 72,
+      "endLine": 114,
+      "parentFileId": "file:core/src/parser/parse-classes.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "classDecl",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").ClassDeclaration",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "classId",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "fileId",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "{ methods: import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").FunctionNode[]; methodIds: string[]; }",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-classes.ts:fn:parseClasses:119": {
+      "id": "file:core/src/parser/parse-classes.ts:fn:parseClasses:119",
+      "type": "function",
+      "name": "parseClasses",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-classes.ts",
+      "line": 119,
+      "endLine": 166,
+      "parentFileId": "file:core/src/parser/parse-classes.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "sourceFile",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").SourceFile",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "fileId",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-classes\").ParseClassesResult",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-exports.ts": {
+      "id": "file:core/src/parser/parse-exports.ts",
+      "type": "file",
+      "name": "parse-exports.ts",
+      "filePath": "core/src/parser/parse-exports.ts",
+      "line": 1,
+      "endLine": 98,
+      "imports": [
+        {
+          "source": "ts-morph",
+          "items": [
+            {
+              "name": "SourceFile",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "SyntaxKind",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ExportedDeclarations",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "ExportInfo",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseExports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:core/src/parser/parse-exports.ts:fn:parseExports:17",
+        "file:core/src/parser/parse-exports.ts:fn:getExportKind:67",
+        "file:core/src/parser/parse-exports.ts:fn:getDefaultExportName:90"
+      ],
+      "classes": []
+    },
+    "file:core/src/parser/parse-exports.ts:fn:parseExports:17": {
+      "id": "file:core/src/parser/parse-exports.ts:fn:parseExports:17",
+      "type": "function",
+      "name": "parseExports",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-exports.ts",
+      "line": 17,
+      "endLine": 62,
+      "parentFileId": "file:core/src/parser/parse-exports.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "sourceFile",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").SourceFile",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").ExportInfo[]",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-exports.ts:fn:getExportKind:67": {
+      "id": "file:core/src/parser/parse-exports.ts:fn:getExportKind:67",
+      "type": "function",
+      "name": "getExportKind",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-exports.ts",
+      "line": 67,
+      "endLine": 85,
+      "parentFileId": "file:core/src/parser/parse-exports.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "syntaxKind",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/@ts-morph+common@0.25.0/node_modules/@ts-morph/common/lib/typescript\").ts.SyntaxKind",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "\"function\" | \"class\" | \"variable\" | \"type\" | \"interface\" | \"enum\" | \"reexport\"",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-exports.ts:fn:getDefaultExportName:90": {
+      "id": "file:core/src/parser/parse-exports.ts:fn:getDefaultExportName:90",
+      "type": "function",
+      "name": "getDefaultExportName",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-exports.ts",
+      "line": 90,
+      "endLine": 97,
+      "parentFileId": "file:core/src/parser/parse-exports.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "decl",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").ExportedDeclarations",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-functions.ts": {
+      "id": "file:core/src/parser/parse-functions.ts",
+      "type": "file",
+      "name": "parse-functions.ts",
+      "filePath": "core/src/parser/parse-functions.ts",
+      "line": 1,
+      "endLine": 114,
+      "imports": [
+        {
+          "source": "ts-morph",
+          "items": [
+            {
+              "name": "SourceFile",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "FunctionDeclaration",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ArrowFunction",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "SyntaxKind",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "FunctionNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ParameterInfo",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "NodeType",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseFunctions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ParseFunctionsResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [
+        "file:core/src/parser/parse-functions.ts:fn:generateFunctionId:24",
+        "file:core/src/parser/parse-functions.ts:fn:parseParameters:31",
+        "file:core/src/parser/parse-functions.ts:fn:parseFunctions:43"
+      ],
+      "classes": []
+    },
+    "file:core/src/parser/parse-functions.ts:fn:generateFunctionId:24": {
+      "id": "file:core/src/parser/parse-functions.ts:fn:generateFunctionId:24",
+      "type": "function",
+      "name": "generateFunctionId",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-functions.ts",
+      "line": 24,
+      "endLine": 26,
+      "parentFileId": "file:core/src/parser/parse-functions.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "fileId",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "line",
+          "type": "number",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-functions.ts:fn:parseParameters:31": {
+      "id": "file:core/src/parser/parse-functions.ts:fn:parseParameters:31",
+      "type": "function",
+      "name": "parseParameters",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-functions.ts",
+      "line": 31,
+      "endLine": 38,
+      "parentFileId": "file:core/src/parser/parse-functions.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "params",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").ParameterDeclaration[]",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").ParameterInfo[]",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-functions.ts:fn:parseFunctions:43": {
+      "id": "file:core/src/parser/parse-functions.ts:fn:parseFunctions:43",
+      "type": "function",
+      "name": "parseFunctions",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-functions.ts",
+      "line": 43,
+      "endLine": 113,
+      "parentFileId": "file:core/src/parser/parse-functions.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "sourceFile",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").SourceFile",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "fileId",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "_filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-functions\").ParseFunctionsResult",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/parse-imports.ts": {
+      "id": "file:core/src/parser/parse-imports.ts",
+      "type": "file",
+      "name": "parse-imports.ts",
+      "filePath": "core/src/parser/parse-imports.ts",
+      "line": 1,
+      "endLine": 71,
+      "imports": [
+        {
+          "source": "ts-morph",
+          "items": [
+            {
+              "name": "SourceFile",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "ImportInfo",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ImportItem",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseImports",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:core/src/parser/parse-imports.ts:fn:parseImports:18"
+      ],
+      "classes": []
+    },
+    "file:core/src/parser/parse-imports.ts:fn:parseImports:18": {
+      "id": "file:core/src/parser/parse-imports.ts:fn:parseImports:18",
+      "type": "function",
+      "name": "parseImports",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/parse-imports.ts",
+      "line": 18,
+      "endLine": 70,
+      "parentFileId": "file:core/src/parser/parse-imports.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "sourceFile",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").SourceFile",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").ImportInfo[]",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/typescript-parser.ts": {
+      "id": "file:core/src/parser/typescript-parser.ts",
+      "type": "file",
+      "name": "typescript-parser.ts",
+      "filePath": "core/src/parser/typescript-parser.ts",
+      "line": 1,
+      "endLine": 330,
+      "imports": [
+        {
+          "source": "ts-morph",
+          "items": [
+            {
+              "name": "Project",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "SourceFile",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "glob",
+          "items": [
+            {
+              "name": "glob",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "uuid",
+          "items": [
+            {
+              "name": "v4",
+              "alias": "uuidv4",
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "path",
+          "items": [
+            {
+              "name": "path",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": true
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/scan.types.js",
+          "items": [
+            {
+              "name": "ScanResult",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ScanStats",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ScanError",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "../types/scan.types.js",
+          "items": [
+            {
+              "name": "ScanStatus",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "FileNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "FunctionNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "ClassNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "NodeMap",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "../types/node.types.js",
+          "items": [
+            {
+              "name": "NodeType",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../types/warning.types.js",
+          "items": [
+            {
+              "name": "WarningLevel",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./parse-imports.js",
+          "items": [
+            {
+              "name": "parseImports",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./parse-exports.js",
+          "items": [
+            {
+              "name": "parseExports",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./parse-functions.js",
+          "items": [
+            {
+              "name": "parseFunctions",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "./parse-classes.js",
+          "items": [
+            {
+              "name": "parseClasses",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "scanProject",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "parseFile",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "ScanOptions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [
+        "file:core/src/parser/typescript-parser.ts:fn:generateFileId:35",
+        "file:core/src/parser/typescript-parser.ts:fn:getProjectName:43",
+        "file:core/src/parser/typescript-parser.ts:fn:findSourceFiles:50",
+        "file:core/src/parser/typescript-parser.ts:fn:parseSourceFile:88",
+        "file:core/src/parser/typescript-parser.ts:fn:calculateStats:137",
+        "file:core/src/parser/typescript-parser.ts:fn:scanProject:192",
+        "file:core/src/parser/typescript-parser.ts:fn:parseFile:309"
+      ],
+      "classes": []
+    },
+    "file:core/src/parser/typescript-parser.ts:fn:generateFileId:35": {
+      "id": "file:core/src/parser/typescript-parser.ts:fn:generateFileId:35",
+      "type": "function",
+      "name": "generateFileId",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser.ts",
+      "line": 35,
+      "endLine": 38,
+      "parentFileId": "file:core/src/parser/typescript-parser.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "projectPath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/typescript-parser.ts:fn:getProjectName:43": {
+      "id": "file:core/src/parser/typescript-parser.ts:fn:getProjectName:43",
+      "type": "function",
+      "name": "getProjectName",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser.ts",
+      "line": 43,
+      "endLine": 45,
+      "parentFileId": "file:core/src/parser/typescript-parser.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "projectPath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/typescript-parser.ts:fn:findSourceFiles:50": {
+      "id": "file:core/src/parser/typescript-parser.ts:fn:findSourceFiles:50",
+      "type": "function",
+      "name": "findSourceFiles",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser.ts",
+      "line": 50,
+      "endLine": 83,
+      "parentFileId": "file:core/src/parser/typescript-parser.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "projectPath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "Promise<string[]>",
+      "isExported": false,
+      "isAsync": true,
+      "behavioral": null
+    },
+    "file:core/src/parser/typescript-parser.ts:fn:parseSourceFile:88": {
+      "id": "file:core/src/parser/typescript-parser.ts:fn:parseSourceFile:88",
+      "type": "function",
+      "name": "parseSourceFile",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser.ts",
+      "line": 88,
+      "endLine": 132,
+      "parentFileId": "file:core/src/parser/typescript-parser.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "sourceFile",
+          "type": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/ts-morph@24.0.0/node_modules/ts-morph/lib/ts-morph\").SourceFile",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "projectPath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "_errors",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/scan.types\").ScanError[]",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "{ fileNode: import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").FileNode; functionNodes: import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").FunctionNode[]; classNodes: import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").ClassNode[]; }",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/typescript-parser.ts:fn:calculateStats:137": {
+      "id": "file:core/src/parser/typescript-parser.ts:fn:calculateStats:137",
+      "type": "function",
+      "name": "calculateStats",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser.ts",
+      "line": 137,
+      "endLine": 183,
+      "parentFileId": "file:core/src/parser/typescript-parser.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "nodes",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").NodeMap",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/scan.types\").ScanStats",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/parser/typescript-parser.ts:fn:scanProject:192": {
+      "id": "file:core/src/parser/typescript-parser.ts:fn:scanProject:192",
+      "type": "function",
+      "name": "scanProject",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser.ts",
+      "line": 192,
+      "endLine": 304,
+      "parentFileId": "file:core/src/parser/typescript-parser.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "projectPath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "options",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser\").ScanOptions",
+          "isOptional": true,
+          "defaultValue": "{}"
+        }
+      ],
+      "returnType": "Promise<import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/scan.types\").ScanResult>",
+      "isExported": true,
+      "isAsync": true,
+      "behavioral": null
+    },
+    "file:core/src/parser/typescript-parser.ts:fn:parseFile:309": {
+      "id": "file:core/src/parser/typescript-parser.ts:fn:parseFile:309",
+      "type": "function",
+      "name": "parseFile",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/core/src/parser/typescript-parser.ts",
+      "line": 309,
+      "endLine": 329,
+      "parentFileId": "file:core/src/parser/typescript-parser.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "projectPath",
+          "type": "string",
+          "isOptional": true,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "Promise<import(\"/home/ridgetop/projects/surveyor/packages/core/src/types/node.types\").FileNode>",
+      "isExported": true,
+      "isAsync": true,
+      "behavioral": null
+    },
+    "file:core/src/types/cluster.types.ts": {
+      "id": "file:core/src/types/cluster.types.ts",
+      "type": "file",
+      "name": "cluster.types.ts",
+      "filePath": "core/src/types/cluster.types.ts",
+      "line": 1,
+      "endLine": 51,
+      "imports": [],
+      "exports": [
+        {
+          "name": "ClusteringMethod",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "SmartClusterCategory",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "ClusterHealth",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Cluster",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClusterStats",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/types/connection.types.ts": {
+      "id": "file:core/src/types/connection.types.ts",
+      "type": "file",
+      "name": "connection.types.ts",
+      "filePath": "core/src/types/connection.types.ts",
+      "line": 1,
+      "endLine": 34,
+      "imports": [],
+      "exports": [
+        {
+          "name": "ConnectionType",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Connection",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionMetadata",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionLocation",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/types/index.ts": {
+      "id": "file:core/src/types/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "core/src/types/index.ts",
+      "line": 1,
+      "endLine": 10,
+      "imports": [],
+      "exports": [
+        {
+          "name": "ScanStatus",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "ScanResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanStats",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanError",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanDiff",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "NodeType",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "SummarySource",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "BaseNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FileNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FunctionNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClassNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "Node",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "type"
+        },
+        {
+          "name": "NodeMap",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "type"
+        },
+        {
+          "name": "ImportInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ImportItem",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ExportInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ParameterInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "PropertyInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "BehavioralSummary",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "BehavioralFlags",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionType",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Connection",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionMetadata",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ConnectionLocation",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "WarningLevel",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "WarningCategory",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Warning",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "WarningSuggestion",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClusteringMethod",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "SmartClusterCategory",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "ClusterHealth",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Cluster",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClusterStats",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/types/node.types.ts": {
+      "id": "file:core/src/types/node.types.ts",
+      "type": "file",
+      "name": "node.types.ts",
+      "filePath": "core/src/types/node.types.ts",
+      "line": 1,
+      "endLine": 113,
+      "imports": [],
+      "exports": [
+        {
+          "name": "NodeType",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "SummarySource",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "BaseNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FileNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FunctionNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ClassNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "Node",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "type"
+        },
+        {
+          "name": "NodeMap",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "type"
+        },
+        {
+          "name": "ImportInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ImportItem",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ExportInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ParameterInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "PropertyInfo",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "BehavioralSummary",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "BehavioralFlags",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/types/scan.types.ts": {
+      "id": "file:core/src/types/scan.types.ts",
+      "type": "file",
+      "name": "scan.types.ts",
+      "filePath": "core/src/types/scan.types.ts",
+      "line": 1,
+      "endLine": 65,
+      "imports": [
+        {
+          "source": "./node.types",
+          "items": [
+            {
+              "name": "NodeMap",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "./connection.types",
+          "items": [
+            {
+              "name": "Connection",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "./warning.types",
+          "items": [
+            {
+              "name": "Warning",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "WarningLevel",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "./cluster.types",
+          "items": [
+            {
+              "name": "Cluster",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "ScanStatus",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "ScanResult",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanStats",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanError",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanDiff",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:core/src/types/warning.types.ts": {
+      "id": "file:core/src/types/warning.types.ts",
+      "type": "file",
+      "name": "warning.types.ts",
+      "filePath": "core/src/types/warning.types.ts",
+      "line": 1,
+      "endLine": 40,
+      "imports": [],
+      "exports": [
+        {
+          "name": "WarningLevel",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "WarningCategory",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "Warning",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "WarningSuggestion",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/constants/colors.constants.ts": {
+      "id": "file:ui/src/constants/colors.constants.ts",
+      "type": "file",
+      "name": "colors.constants.ts",
+      "filePath": "ui/src/constants/colors.constants.ts",
+      "line": 1,
+      "endLine": 31,
+      "imports": [],
+      "exports": [
+        {
+          "name": "COLORS",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/constants/keys.constants.ts": {
+      "id": "file:ui/src/constants/keys.constants.ts",
+      "type": "file",
+      "name": "keys.constants.ts",
+      "filePath": "ui/src/constants/keys.constants.ts",
+      "line": 1,
+      "endLine": 13,
+      "imports": [],
+      "exports": [
+        {
+          "name": "KEYS",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/constants/layout.constants.ts": {
+      "id": "file:ui/src/constants/layout.constants.ts",
+      "type": "file",
+      "name": "layout.constants.ts",
+      "filePath": "ui/src/constants/layout.constants.ts",
+      "line": 1,
+      "endLine": 14,
+      "imports": [],
+      "exports": [
+        {
+          "name": "LAYOUT",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/hooks/index.ts": {
+      "id": "file:ui/src/hooks/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "ui/src/hooks/index.ts",
+      "line": 1,
+      "endLine": 7,
+      "imports": [],
+      "exports": [
+        {
+          "name": "useScanData",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "UseScanDataState",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "UseScanDataReturn",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "useScanData",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "UseScanDataState",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "reexport"
+        },
+        {
+          "name": "UseScanDataReturn",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "reexport"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/hooks/use-canvas-controls.ts": {
+      "id": "file:ui/src/hooks/use-canvas-controls.ts",
+      "type": "file",
+      "name": "use-canvas-controls.ts",
+      "filePath": "ui/src/hooks/use-canvas-controls.ts",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "useCanvasControls",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/hooks/use-canvas-controls.ts:fn:useCanvasControls:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/hooks/use-canvas-controls.ts:fn:useCanvasControls:5": {
+      "id": "file:ui/src/hooks/use-canvas-controls.ts:fn:useCanvasControls:5",
+      "type": "function",
+      "name": "useCanvasControls",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/hooks/use-canvas-controls.ts",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/hooks/use-canvas-controls.ts",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "void",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/hooks/use-keyboard-nav.ts": {
+      "id": "file:ui/src/hooks/use-keyboard-nav.ts",
+      "type": "file",
+      "name": "use-keyboard-nav.ts",
+      "filePath": "ui/src/hooks/use-keyboard-nav.ts",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "useKeyboardNav",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/hooks/use-keyboard-nav.ts:fn:useKeyboardNav:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/hooks/use-keyboard-nav.ts:fn:useKeyboardNav:5": {
+      "id": "file:ui/src/hooks/use-keyboard-nav.ts:fn:useKeyboardNav:5",
+      "type": "function",
+      "name": "useKeyboardNav",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/hooks/use-keyboard-nav.ts",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/hooks/use-keyboard-nav.ts",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "void",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/hooks/use-scan-data.ts": {
+      "id": "file:ui/src/hooks/use-scan-data.ts",
+      "type": "file",
+      "name": "use-scan-data.ts",
+      "filePath": "ui/src/hooks/use-scan-data.ts",
+      "line": 1,
+      "endLine": 139,
+      "imports": [
+        {
+          "source": "react",
+          "items": [
+            {
+              "name": "useState",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "useCallback",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@surveyor/core",
+          "items": [
+            {
+              "name": "ScanResult",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "useScanData",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "UseScanDataState",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "UseScanDataReturn",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [
+        "file:ui/src/hooks/use-scan-data.ts:fn:useScanData:24",
+        "file:ui/src/hooks/use-scan-data.ts:fn:validateScanResult:87"
+      ],
+      "classes": []
+    },
+    "file:ui/src/hooks/use-scan-data.ts:fn:useScanData:24": {
+      "id": "file:ui/src/hooks/use-scan-data.ts:fn:useScanData:24",
+      "type": "function",
+      "name": "useScanData",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/hooks/use-scan-data.ts",
+      "line": 24,
+      "endLine": 81,
+      "parentFileId": "file:ui/src/hooks/use-scan-data.ts",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/ui/src/hooks/use-scan-data\").UseScanDataReturn",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/hooks/use-scan-data.ts:fn:validateScanResult:87": {
+      "id": "file:ui/src/hooks/use-scan-data.ts:fn:validateScanResult:87",
+      "type": "function",
+      "name": "validateScanResult",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/hooks/use-scan-data.ts",
+      "line": 87,
+      "endLine": 138,
+      "parentFileId": "file:ui/src/hooks/use-scan-data.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "obj",
+          "type": "unknown",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "void",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/hooks/use-scan-store.ts": {
+      "id": "file:ui/src/hooks/use-scan-store.ts",
+      "type": "file",
+      "name": "use-scan-store.ts",
+      "filePath": "ui/src/hooks/use-scan-store.ts",
+      "line": 1,
+      "endLine": 8,
+      "imports": [
+        {
+          "source": "../stores/scan-store",
+          "items": [
+            {
+              "name": "useScanStore",
+              "alias": "useStore",
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "useScanStore",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/hooks/use-ui-store.ts": {
+      "id": "file:ui/src/hooks/use-ui-store.ts",
+      "type": "file",
+      "name": "use-ui-store.ts",
+      "filePath": "ui/src/hooks/use-ui-store.ts",
+      "line": 1,
+      "endLine": 8,
+      "imports": [
+        {
+          "source": "../stores/ui-store",
+          "items": [
+            {
+              "name": "useUIStore",
+              "alias": "useStore",
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "useUIStore",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/stores/history-store.ts": {
+      "id": "file:ui/src/stores/history-store.ts",
+      "type": "file",
+      "name": "history-store.ts",
+      "filePath": "ui/src/stores/history-store.ts",
+      "line": 1,
+      "endLine": 16,
+      "imports": [
+        {
+          "source": "zustand",
+          "items": [
+            {
+              "name": "create",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "useHistoryStore",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/stores/scan-store.ts": {
+      "id": "file:ui/src/stores/scan-store.ts",
+      "type": "file",
+      "name": "scan-store.ts",
+      "filePath": "ui/src/stores/scan-store.ts",
+      "line": 1,
+      "endLine": 66,
+      "imports": [
+        {
+          "source": "zustand",
+          "items": [
+            {
+              "name": "create",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@surveyor/core",
+          "items": [
+            {
+              "name": "ScanResult",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Node",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Connection",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Warning",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "ScanState",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanActions",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "ScanStore",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "type"
+        },
+        {
+          "name": "useScanStore",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/stores/ui-store.ts": {
+      "id": "file:ui/src/stores/ui-store.ts",
+      "type": "file",
+      "name": "ui-store.ts",
+      "filePath": "ui/src/stores/ui-store.ts",
+      "line": 1,
+      "endLine": 30,
+      "imports": [
+        {
+          "source": "zustand",
+          "items": [
+            {
+              "name": "create",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "ViewMode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "PanelState",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "enum"
+        },
+        {
+          "name": "UIState",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "useUIStore",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/types/ui.types.ts": {
+      "id": "file:ui/src/types/ui.types.ts",
+      "type": "file",
+      "name": "ui.types.ts",
+      "filePath": "ui/src/types/ui.types.ts",
+      "line": 1,
+      "endLine": 26,
+      "imports": [],
+      "exports": [
+        {
+          "name": "BreadcrumbItem",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FilterState",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/utils/animations.ts": {
+      "id": "file:ui/src/utils/animations.ts",
+      "type": "file",
+      "name": "animations.ts",
+      "filePath": "ui/src/utils/animations.ts",
+      "line": 1,
+      "endLine": 32,
+      "imports": [],
+      "exports": [
+        {
+          "name": "nodeVariants",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        },
+        {
+          "name": "panelVariants",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        },
+        {
+          "name": "connectionVariants",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/utils/colors.ts": {
+      "id": "file:ui/src/utils/colors.ts",
+      "type": "file",
+      "name": "colors.ts",
+      "filePath": "ui/src/utils/colors.ts",
+      "line": 1,
+      "endLine": 13,
+      "imports": [],
+      "exports": [
+        {
+          "name": "getHealthColor",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/utils/colors.ts:fn:getHealthColor:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/utils/colors.ts:fn:getHealthColor:5": {
+      "id": "file:ui/src/utils/colors.ts:fn:getHealthColor:5",
+      "type": "function",
+      "name": "getHealthColor",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/colors.ts",
+      "line": 5,
+      "endLine": 12,
+      "parentFileId": "file:ui/src/utils/colors.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "health",
+          "type": "\"healthy\" | \"warning\" | \"critical\"",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/connections.ts": {
+      "id": "file:ui/src/utils/connections.ts",
+      "type": "file",
+      "name": "connections.ts",
+      "filePath": "ui/src/utils/connections.ts",
+      "line": 1,
+      "endLine": 146,
+      "imports": [
+        {
+          "source": "@surveyor/core",
+          "items": [
+            {
+              "name": "FileNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "NodeMap",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "NodeType",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "@xyflow/react",
+          "items": [
+            {
+              "name": "Edge",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "generateImportEdges",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "EdgeConfig",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [
+        "file:ui/src/utils/connections.ts:fn:generateImportEdges:16",
+        "file:ui/src/utils/connections.ts:fn:getFileNodes:52",
+        "file:ui/src/utils/connections.ts:fn:buildFilePathIndex:61",
+        "file:ui/src/utils/connections.ts:fn:resolveImportToFileId:85",
+        "file:ui/src/utils/connections.ts:fn:getDirectory:115",
+        "file:ui/src/utils/connections.ts:fn:removeExtension:123",
+        "file:ui/src/utils/connections.ts:fn:resolvePath:130"
+      ],
+      "classes": []
+    },
+    "file:ui/src/utils/connections.ts:fn:generateImportEdges:16": {
+      "id": "file:ui/src/utils/connections.ts:fn:generateImportEdges:16",
+      "type": "function",
+      "name": "generateImportEdges",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections.ts",
+      "line": 16,
+      "endLine": 47,
+      "parentFileId": "file:ui/src/utils/connections.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "nodes",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/dist/types/node.types\").NodeMap",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "config",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections\").EdgeConfig",
+          "isOptional": true,
+          "defaultValue": "{}"
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/node_modules/.pnpm/@xyflow+react@12.10.0_@types+react@18.3.27_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@xyflow/react/dist/esm/types/edges\").Edge[]",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/connections.ts:fn:getFileNodes:52": {
+      "id": "file:ui/src/utils/connections.ts:fn:getFileNodes:52",
+      "type": "function",
+      "name": "getFileNodes",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections.ts",
+      "line": 52,
+      "endLine": 56,
+      "parentFileId": "file:ui/src/utils/connections.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "nodes",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/dist/types/node.types\").NodeMap",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/core/dist/types/node.types\").FileNode[]",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/connections.ts:fn:buildFilePathIndex:61": {
+      "id": "file:ui/src/utils/connections.ts:fn:buildFilePathIndex:61",
+      "type": "function",
+      "name": "buildFilePathIndex",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections.ts",
+      "line": 61,
+      "endLine": 80,
+      "parentFileId": "file:ui/src/utils/connections.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "files",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/dist/types/node.types\").FileNode[]",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "Map<string, string>",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/connections.ts:fn:resolveImportToFileId:85": {
+      "id": "file:ui/src/utils/connections.ts:fn:resolveImportToFileId:85",
+      "type": "function",
+      "name": "resolveImportToFileId",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections.ts",
+      "line": 85,
+      "endLine": 110,
+      "parentFileId": "file:ui/src/utils/connections.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "importingFilePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "importSource",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "fileIndex",
+          "type": "Map<string, string>",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/connections.ts:fn:getDirectory:115": {
+      "id": "file:ui/src/utils/connections.ts:fn:getDirectory:115",
+      "type": "function",
+      "name": "getDirectory",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections.ts",
+      "line": 115,
+      "endLine": 118,
+      "parentFileId": "file:ui/src/utils/connections.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/connections.ts:fn:removeExtension:123": {
+      "id": "file:ui/src/utils/connections.ts:fn:removeExtension:123",
+      "type": "function",
+      "name": "removeExtension",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections.ts",
+      "line": 123,
+      "endLine": 125,
+      "parentFileId": "file:ui/src/utils/connections.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/connections.ts:fn:resolvePath:130": {
+      "id": "file:ui/src/utils/connections.ts:fn:resolvePath:130",
+      "type": "function",
+      "name": "resolvePath",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/connections.ts",
+      "line": 130,
+      "endLine": 145,
+      "parentFileId": "file:ui/src/utils/connections.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "baseDir",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "relativePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/index.ts": {
+      "id": "file:ui/src/utils/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "ui/src/utils/index.ts",
+      "line": 1,
+      "endLine": 7,
+      "imports": [],
+      "exports": [
+        {
+          "name": "groupFilesByFolder",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "calculateFolderLayout",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "calculateNodePosition",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "Position",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "LayoutConfig",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "LayoutNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FolderGroup",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "generateImportEdges",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "EdgeConfig",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/utils/layout.ts": {
+      "id": "file:ui/src/utils/layout.ts",
+      "type": "file",
+      "name": "layout.ts",
+      "filePath": "ui/src/utils/layout.ts",
+      "line": 1,
+      "endLine": 130,
+      "imports": [
+        {
+          "source": "@surveyor/core",
+          "items": [
+            {
+              "name": "FileNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "NodeMap",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "NodeType",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "groupFilesByFolder",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "calculateFolderLayout",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "calculateNodePosition",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "Position",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "LayoutConfig",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "LayoutNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FolderGroup",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [
+        "file:ui/src/utils/layout.ts:fn:groupFilesByFolder:47",
+        "file:ui/src/utils/layout.ts:fn:getFolderPath:74",
+        "file:ui/src/utils/layout.ts:fn:calculateFolderLayout:83",
+        "file:ui/src/utils/layout.ts:fn:calculateNodePosition:120"
+      ],
+      "classes": []
+    },
+    "file:ui/src/utils/layout.ts:fn:groupFilesByFolder:47": {
+      "id": "file:ui/src/utils/layout.ts:fn:groupFilesByFolder:47",
+      "type": "function",
+      "name": "groupFilesByFolder",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout.ts",
+      "line": 47,
+      "endLine": 69,
+      "parentFileId": "file:ui/src/utils/layout.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "nodes",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/dist/types/node.types\").NodeMap",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout\").FolderGroup[]",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/layout.ts:fn:getFolderPath:74": {
+      "id": "file:ui/src/utils/layout.ts:fn:getFolderPath:74",
+      "type": "function",
+      "name": "getFolderPath",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout.ts",
+      "line": 74,
+      "endLine": 78,
+      "parentFileId": "file:ui/src/utils/layout.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "filePath",
+          "type": "string",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "string",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/layout.ts:fn:calculateFolderLayout:83": {
+      "id": "file:ui/src/utils/layout.ts:fn:calculateFolderLayout:83",
+      "type": "function",
+      "name": "calculateFolderLayout",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout.ts",
+      "line": 83,
+      "endLine": 115,
+      "parentFileId": "file:ui/src/utils/layout.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "nodes",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/core/dist/types/node.types\").NodeMap",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "config",
+          "type": "Partial<import(\"/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout\").LayoutConfig>",
+          "isOptional": true,
+          "defaultValue": "{}"
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout\").LayoutNode[]",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/utils/layout.ts:fn:calculateNodePosition:120": {
+      "id": "file:ui/src/utils/layout.ts:fn:calculateNodePosition:120",
+      "type": "function",
+      "name": "calculateNodePosition",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout.ts",
+      "line": 120,
+      "endLine": 129,
+      "parentFileId": "file:ui/src/utils/layout.ts",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "index",
+          "type": "number",
+          "isOptional": false,
+          "defaultValue": null
+        },
+        {
+          "name": "total",
+          "type": "number",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "import(\"/home/ridgetop/projects/surveyor/packages/ui/src/utils/layout\").Position",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:core/src/cli/commands/scan.ts": {
+      "id": "file:core/src/cli/commands/scan.ts",
+      "type": "file",
+      "name": "scan.ts",
+      "filePath": "core/src/cli/commands/scan.ts",
+      "line": 1,
+      "endLine": 86,
+      "imports": [
+        {
+          "source": "commander",
+          "items": [
+            {
+              "name": "Command",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "fs",
+          "items": [
+            {
+              "name": "fs",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": true
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "path",
+          "items": [
+            {
+              "name": "path",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": true
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../../parser/index.js",
+          "items": [
+            {
+              "name": "scanProject",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "scanCommand",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/components/canvas/Canvas.tsx": {
+      "id": "file:ui/src/components/canvas/Canvas.tsx",
+      "type": "file",
+      "name": "Canvas.tsx",
+      "filePath": "ui/src/components/canvas/Canvas.tsx",
+      "line": 1,
+      "endLine": 113,
+      "imports": [
+        {
+          "source": "react",
+          "items": [
+            {
+              "name": "useCallback",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "useMemo",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@xyflow/react",
+          "items": [
+            {
+              "name": "ReactFlow",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "MiniMap",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Controls",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Background",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "BackgroundVariant",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "useNodesState",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "useEdgesState",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "NodeTypes",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Node",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Edge",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@xyflow/react/dist/style.css",
+          "items": [],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@surveyor/core",
+          "items": [
+            {
+              "name": "ScanResult",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        },
+        {
+          "source": "./FileNode",
+          "items": [
+            {
+              "name": "FileNode",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../../utils/layout",
+          "items": [
+            {
+              "name": "calculateFolderLayout",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "../../utils/connections",
+          "items": [
+            {
+              "name": "generateImportEdges",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        }
+      ],
+      "exports": [
+        {
+          "name": "Canvas",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "CanvasProps",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/canvas/Canvas.tsx:fn:Canvas:37"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/canvas/Canvas.tsx:fn:Canvas:37": {
+      "id": "file:ui/src/components/canvas/Canvas.tsx:fn:Canvas:37",
+      "type": "function",
+      "name": "Canvas",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/canvas/Canvas.tsx",
+      "line": 37,
+      "endLine": 112,
+      "parentFileId": "file:ui/src/components/canvas/Canvas.tsx",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "{ scanData }",
+          "type": "import(\"/home/ridgetop/projects/surveyor/packages/ui/src/components/canvas/Canvas\").CanvasProps",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/canvas/CustomEdge.tsx": {
+      "id": "file:ui/src/components/canvas/CustomEdge.tsx",
+      "type": "file",
+      "name": "CustomEdge.tsx",
+      "filePath": "ui/src/components/canvas/CustomEdge.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "CustomEdge",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/canvas/CustomEdge.tsx:fn:CustomEdge:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/canvas/CustomEdge.tsx:fn:CustomEdge:5": {
+      "id": "file:ui/src/components/canvas/CustomEdge.tsx:fn:CustomEdge:5",
+      "type": "function",
+      "name": "CustomEdge",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/canvas/CustomEdge.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/canvas/CustomEdge.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "any",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/canvas/CustomNode.tsx": {
+      "id": "file:ui/src/components/canvas/CustomNode.tsx",
+      "type": "file",
+      "name": "CustomNode.tsx",
+      "filePath": "ui/src/components/canvas/CustomNode.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "CustomNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/canvas/CustomNode.tsx:fn:CustomNode:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/canvas/CustomNode.tsx:fn:CustomNode:5": {
+      "id": "file:ui/src/components/canvas/CustomNode.tsx:fn:CustomNode:5",
+      "type": "function",
+      "name": "CustomNode",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/canvas/CustomNode.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/canvas/CustomNode.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/canvas/FileNode.tsx": {
+      "id": "file:ui/src/components/canvas/FileNode.tsx",
+      "type": "file",
+      "name": "FileNode.tsx",
+      "filePath": "ui/src/components/canvas/FileNode.tsx",
+      "line": 1,
+      "endLine": 57,
+      "imports": [
+        {
+          "source": "react",
+          "items": [
+            {
+              "name": "memo",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@xyflow/react",
+          "items": [
+            {
+              "name": "Handle",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            },
+            {
+              "name": "Position",
+              "alias": null,
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": false
+        },
+        {
+          "source": "@surveyor/core",
+          "items": [
+            {
+              "name": "FileNode",
+              "alias": "FileNodeData",
+              "isDefault": false,
+              "isNamespace": false
+            }
+          ],
+          "isTypeOnly": true
+        }
+      ],
+      "exports": [
+        {
+          "name": "FileNodeDataProps",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FileNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/canvas/FileNode.tsx:fn:FileNodeComponent:20"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/canvas/FileNode.tsx:fn:FileNodeComponent:20": {
+      "id": "file:ui/src/components/canvas/FileNode.tsx:fn:FileNodeComponent:20",
+      "type": "function",
+      "name": "FileNodeComponent",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/canvas/FileNode.tsx",
+      "line": 20,
+      "endLine": 54,
+      "parentFileId": "file:ui/src/components/canvas/FileNode.tsx",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "{ data }",
+          "type": "{ data: import(\"/home/ridgetop/projects/surveyor/packages/ui/src/components/canvas/FileNode\").FileNodeDataProps; }",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "React.JSX.Element",
+      "isExported": false,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/canvas/index.ts": {
+      "id": "file:ui/src/components/canvas/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "ui/src/components/canvas/index.ts",
+      "line": 1,
+      "endLine": 9,
+      "imports": [],
+      "exports": [
+        {
+          "name": "Canvas",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        },
+        {
+          "name": "CanvasProps",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "FileNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "variable"
+        },
+        {
+          "name": "FileNodeDataProps",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "interface"
+        },
+        {
+          "name": "Canvas",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "CanvasProps",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "reexport"
+        },
+        {
+          "name": "FileNode",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "reexport"
+        },
+        {
+          "name": "FileNodeDataProps",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": true,
+          "kind": "reexport"
+        }
+      ],
+      "functions": [],
+      "classes": []
+    },
+    "file:ui/src/components/canvas/MiniMap.tsx": {
+      "id": "file:ui/src/components/canvas/MiniMap.tsx",
+      "type": "file",
+      "name": "MiniMap.tsx",
+      "filePath": "ui/src/components/canvas/MiniMap.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "MiniMap",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/canvas/MiniMap.tsx:fn:MiniMap:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/canvas/MiniMap.tsx:fn:MiniMap:5": {
+      "id": "file:ui/src/components/canvas/MiniMap.tsx:fn:MiniMap:5",
+      "type": "function",
+      "name": "MiniMap",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/canvas/MiniMap.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/canvas/MiniMap.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/controls/Breadcrumb.tsx": {
+      "id": "file:ui/src/components/controls/Breadcrumb.tsx",
+      "type": "file",
+      "name": "Breadcrumb.tsx",
+      "filePath": "ui/src/components/controls/Breadcrumb.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "Breadcrumb",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/controls/Breadcrumb.tsx:fn:Breadcrumb:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/controls/Breadcrumb.tsx:fn:Breadcrumb:5": {
+      "id": "file:ui/src/components/controls/Breadcrumb.tsx:fn:Breadcrumb:5",
+      "type": "function",
+      "name": "Breadcrumb",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/controls/Breadcrumb.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/controls/Breadcrumb.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/controls/FilterChips.tsx": {
+      "id": "file:ui/src/components/controls/FilterChips.tsx",
+      "type": "file",
+      "name": "FilterChips.tsx",
+      "filePath": "ui/src/components/controls/FilterChips.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "FilterChips",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/controls/FilterChips.tsx:fn:FilterChips:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/controls/FilterChips.tsx:fn:FilterChips:5": {
+      "id": "file:ui/src/components/controls/FilterChips.tsx:fn:FilterChips:5",
+      "type": "function",
+      "name": "FilterChips",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/controls/FilterChips.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/controls/FilterChips.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/controls/SearchBar.tsx": {
+      "id": "file:ui/src/components/controls/SearchBar.tsx",
+      "type": "file",
+      "name": "SearchBar.tsx",
+      "filePath": "ui/src/components/controls/SearchBar.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "SearchBar",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/controls/SearchBar.tsx:fn:SearchBar:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/controls/SearchBar.tsx:fn:SearchBar:5": {
+      "id": "file:ui/src/components/controls/SearchBar.tsx:fn:SearchBar:5",
+      "type": "function",
+      "name": "SearchBar",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/controls/SearchBar.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/controls/SearchBar.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/controls/ViewToggle.tsx": {
+      "id": "file:ui/src/components/controls/ViewToggle.tsx",
+      "type": "file",
+      "name": "ViewToggle.tsx",
+      "filePath": "ui/src/components/controls/ViewToggle.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "ViewToggle",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/controls/ViewToggle.tsx:fn:ViewToggle:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/controls/ViewToggle.tsx:fn:ViewToggle:5": {
+      "id": "file:ui/src/components/controls/ViewToggle.tsx:fn:ViewToggle:5",
+      "type": "function",
+      "name": "ViewToggle",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/controls/ViewToggle.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/controls/ViewToggle.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/overlays/ScanProgress.tsx": {
+      "id": "file:ui/src/components/overlays/ScanProgress.tsx",
+      "type": "file",
+      "name": "ScanProgress.tsx",
+      "filePath": "ui/src/components/overlays/ScanProgress.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "ScanProgress",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/overlays/ScanProgress.tsx:fn:ScanProgress:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/overlays/ScanProgress.tsx:fn:ScanProgress:5": {
+      "id": "file:ui/src/components/overlays/ScanProgress.tsx:fn:ScanProgress:5",
+      "type": "function",
+      "name": "ScanProgress",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/overlays/ScanProgress.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/overlays/ScanProgress.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/panels/InsightsPanel.tsx": {
+      "id": "file:ui/src/components/panels/InsightsPanel.tsx",
+      "type": "file",
+      "name": "InsightsPanel.tsx",
+      "filePath": "ui/src/components/panels/InsightsPanel.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "InsightsPanel",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/panels/InsightsPanel.tsx:fn:InsightsPanel:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/panels/InsightsPanel.tsx:fn:InsightsPanel:5": {
+      "id": "file:ui/src/components/panels/InsightsPanel.tsx:fn:InsightsPanel:5",
+      "type": "function",
+      "name": "InsightsPanel",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/panels/InsightsPanel.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/panels/InsightsPanel.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/panels/NodeDetailPanel.tsx": {
+      "id": "file:ui/src/components/panels/NodeDetailPanel.tsx",
+      "type": "file",
+      "name": "NodeDetailPanel.tsx",
+      "filePath": "ui/src/components/panels/NodeDetailPanel.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "NodeDetailPanel",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/panels/NodeDetailPanel.tsx:fn:NodeDetailPanel:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/panels/NodeDetailPanel.tsx:fn:NodeDetailPanel:5": {
+      "id": "file:ui/src/components/panels/NodeDetailPanel.tsx:fn:NodeDetailPanel:5",
+      "type": "function",
+      "name": "NodeDetailPanel",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/panels/NodeDetailPanel.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/panels/NodeDetailPanel.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/panels/WarningPanel.tsx": {
+      "id": "file:ui/src/components/panels/WarningPanel.tsx",
+      "type": "file",
+      "name": "WarningPanel.tsx",
+      "filePath": "ui/src/components/panels/WarningPanel.tsx",
+      "line": 1,
+      "endLine": 8,
+      "imports": [],
+      "exports": [
+        {
+          "name": "WarningPanel",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/panels/WarningPanel.tsx:fn:WarningPanel:5"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/panels/WarningPanel.tsx:fn:WarningPanel:5": {
+      "id": "file:ui/src/components/panels/WarningPanel.tsx:fn:WarningPanel:5",
+      "type": "function",
+      "name": "WarningPanel",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/panels/WarningPanel.tsx",
+      "line": 5,
+      "endLine": 7,
+      "parentFileId": "file:ui/src/components/panels/WarningPanel.tsx",
+      "parentClassId": null,
+      "params": [],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/shared/Badge.tsx": {
+      "id": "file:ui/src/components/shared/Badge.tsx",
+      "type": "file",
+      "name": "Badge.tsx",
+      "filePath": "ui/src/components/shared/Badge.tsx",
+      "line": 1,
+      "endLine": 13,
+      "imports": [],
+      "exports": [
+        {
+          "name": "Badge",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/shared/Badge.tsx:fn:Badge:10"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/shared/Badge.tsx:fn:Badge:10": {
+      "id": "file:ui/src/components/shared/Badge.tsx:fn:Badge:10",
+      "type": "function",
+      "name": "Badge",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/shared/Badge.tsx",
+      "line": 10,
+      "endLine": 12,
+      "parentFileId": "file:ui/src/components/shared/Badge.tsx",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "{ children, variant: _variant = 'default' }",
+          "type": "BadgeProps",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/shared/Button.tsx": {
+      "id": "file:ui/src/components/shared/Button.tsx",
+      "type": "file",
+      "name": "Button.tsx",
+      "filePath": "ui/src/components/shared/Button.tsx",
+      "line": 1,
+      "endLine": 14,
+      "imports": [],
+      "exports": [
+        {
+          "name": "Button",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/shared/Button.tsx:fn:Button:11"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/shared/Button.tsx:fn:Button:11": {
+      "id": "file:ui/src/components/shared/Button.tsx:fn:Button:11",
+      "type": "function",
+      "name": "Button",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/shared/Button.tsx",
+      "line": 11,
+      "endLine": 13,
+      "parentFileId": "file:ui/src/components/shared/Button.tsx",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "{ children, onClick, variant: _variant = 'primary' }",
+          "type": "ButtonProps",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    },
+    "file:ui/src/components/shared/Icon.tsx": {
+      "id": "file:ui/src/components/shared/Icon.tsx",
+      "type": "file",
+      "name": "Icon.tsx",
+      "filePath": "ui/src/components/shared/Icon.tsx",
+      "line": 1,
+      "endLine": 13,
+      "imports": [],
+      "exports": [
+        {
+          "name": "Icon",
+          "alias": null,
+          "isDefault": false,
+          "isTypeOnly": false,
+          "kind": "function"
+        }
+      ],
+      "functions": [
+        "file:ui/src/components/shared/Icon.tsx:fn:Icon:10"
+      ],
+      "classes": []
+    },
+    "file:ui/src/components/shared/Icon.tsx:fn:Icon:10": {
+      "id": "file:ui/src/components/shared/Icon.tsx:fn:Icon:10",
+      "type": "function",
+      "name": "Icon",
+      "filePath": "/home/ridgetop/projects/surveyor/packages/ui/src/components/shared/Icon.tsx",
+      "line": 10,
+      "endLine": 12,
+      "parentFileId": "file:ui/src/components/shared/Icon.tsx",
+      "parentClassId": null,
+      "params": [
+        {
+          "name": "{ name, size: _size = 16 }",
+          "type": "IconProps",
+          "isOptional": false,
+          "defaultValue": null
+        }
+      ],
+      "returnType": "React.JSX.Element",
+      "isExported": true,
+      "isAsync": false,
+      "behavioral": null
+    }
+  },
+  "connections": [],
+  "warnings": [],
+  "clusters": [],
+  "errors": []
+}

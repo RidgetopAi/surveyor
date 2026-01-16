@@ -377,8 +377,8 @@ Full feature validation. Use Surveyor on Squire. Can you answer "is my architect
 |-------|--------|
 | 0 - Foundation | **COMPLETE** ✓ |
 | 1 - Parser | **COMPLETE** ✓ |
-| 2 - Basic Visualization | Not started |
-| 3 - Interactions | Not started |
+| 2 - Basic Visualization | **COMPLETE** ✓ |
+| 3 - Interactions | **COMPLETE** ✓ |
 | 4 - Behavioral Analysis | Not started |
 | 5 - Warnings | Not started |
 | 6 - Polish | Not started |
