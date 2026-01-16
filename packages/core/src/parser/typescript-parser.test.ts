@@ -24,13 +24,13 @@ describe('scanProject', () => {
   });
 
   it('should have correct stats', async () => {
-    const result = await scanProject(SAMPLE_PROJECT);
+    const result = await scanProject(SAMPLE_PROJECT, { skipWarnings: true });
 
     expect(result.stats.totalFiles).toBe(8);
     expect(result.stats.totalFunctions).toBe(14);
     expect(result.stats.totalClasses).toBe(0);
     expect(result.stats.totalConnections).toBe(0); // Phase 2
-    expect(result.stats.totalWarnings).toBe(0);    // Phase 5
+    expect(result.stats.totalWarnings).toBe(0);    // Warnings skipped
     expect(result.stats.pendingAnalysis).toBe(14); // Phase 4
   });
 
@@ -114,12 +114,28 @@ describe('scanProject', () => {
     }
   });
 
-  it('should have empty connections, warnings, clusters for Phase 1', async () => {
-    const result = await scanProject(SAMPLE_PROJECT);
+  it('should have empty connections and clusters (Phase 2/7)', async () => {
+    const result = await scanProject(SAMPLE_PROJECT, { skipWarnings: true });
 
     expect(result.connections).toHaveLength(0);
-    expect(result.warnings).toHaveLength(0);
     expect(result.clusters).toHaveLength(0);
+  });
+
+  it('should detect warnings when enabled', async () => {
+    const result = await scanProject(SAMPLE_PROJECT);
+
+    // Should have detected some warnings (orphaned code, unused exports, etc.)
+    expect(result.warnings.length).toBeGreaterThan(0);
+    expect(result.stats.totalWarnings).toBe(result.warnings.length);
+
+    // Each warning should have required fields
+    for (const warning of result.warnings) {
+      expect(warning.id).toBeDefined();
+      expect(warning.category).toBeDefined();
+      expect(warning.level).toBeDefined();
+      expect(warning.title).toBeDefined();
+      expect(warning.affectedNodes).toBeDefined();
+    }
   });
 
   it('should have no errors for valid project', async () => {

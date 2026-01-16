@@ -9,6 +9,7 @@ export interface ScanState {
   currentScan: ScanResult | null;
   selectedNodeId: string | null;
   hoveredNodeId: string | null;
+  highlightedNodeIds: string[]; // nodes highlighted by warning selection
   currentFolder: string | null; // null = root view (all folders), string = drilled into folder
   navigationPath: string[]; // breadcrumb path
   searchQuery: string; // search filter for nodes
@@ -22,6 +23,7 @@ export interface ScanActions {
   setError: (error: Error | null) => void;
   selectNode: (nodeId: string | null) => void;
   hoverNode: (nodeId: string | null) => void;
+  setHighlightedNodes: (nodeIds: string[]) => void;
   drillInto: (folder: string) => void;
   drillOut: () => void;
   drillToPath: (pathIndex: number) => void;
@@ -38,6 +40,7 @@ export const useScanStore = create<ScanStore>((set, get) => ({
   currentScan: null,
   selectedNodeId: null,
   hoveredNodeId: null,
+  highlightedNodeIds: [],
   currentFolder: null,
   navigationPath: [],
   searchQuery: '',
@@ -45,11 +48,12 @@ export const useScanStore = create<ScanStore>((set, get) => ({
   error: null,
 
   // Actions
-  setScan: (scan) => set({ currentScan: scan, error: null, currentFolder: null, navigationPath: [], searchQuery: '' }),
+  setScan: (scan) => set({ currentScan: scan, error: null, currentFolder: null, navigationPath: [], searchQuery: '', highlightedNodeIds: [] }),
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error, isLoading: false }),
   selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
   hoverNode: (nodeId) => set({ hoveredNodeId: nodeId }),
+  setHighlightedNodes: (nodeIds) => set({ highlightedNodeIds: nodeIds }),
   drillInto: (folder) => {
     const { navigationPath } = get();
     set({

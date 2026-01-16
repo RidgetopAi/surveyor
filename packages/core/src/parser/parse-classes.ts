@@ -104,6 +104,7 @@ function parseMethods(
       isExported: false, // Methods aren't directly exported
       isAsync: method.isAsync(),
       behavioral: null, // Phase 4
+      source: method.getText(),
     };
 
     methods.push(node);

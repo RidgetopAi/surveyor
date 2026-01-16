@@ -96,6 +96,7 @@ function CanvasInner({ scanData }: CanvasProps) {
   const { fitView } = useReactFlow();
   const currentFolder = useScanStore((state) => state.currentFolder);
   const hoveredNodeId = useScanStore((state) => state.hoveredNodeId);
+  const highlightedNodeIds = useScanStore((state) => state.highlightedNodeIds);
   const hoverNode = useScanStore((state) => state.hoverNode);
   const selectNode = useScanStore((state) => state.selectNode);
   const drillInto = useScanStore((state) => state.drillInto);
@@ -235,11 +236,27 @@ function CanvasInner({ scanData }: CanvasProps) {
     return label.includes(query) || folderPath.includes(query) || filePath.includes(query);
   }, [searchQuery]);
 
-  // Apply hover and search highlighting to nodes
+  // Apply hover, search, and warning highlighting to nodes
   const styledNodes = useMemo(() => {
+    const highlightSet = new Set(highlightedNodeIds);
+    const hasWarningHighlight = highlightedNodeIds.length > 0;
+
     return nodes.map(node => {
       const isSearchMatch = matchesSearch(node);
       const hasSearchQuery = searchQuery.length > 0;
+      const isWarningHighlighted = highlightSet.has(node.id);
+
+      // Warning highlighting takes top precedence
+      if (hasWarningHighlight) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            isFaded: !isWarningHighlighted,
+            isHighlighted: isWarningHighlighted,
+          },
+        };
+      }
 
       // Search takes precedence over hover
       if (hasSearchQuery) {
@@ -271,7 +288,7 @@ function CanvasInner({ scanData }: CanvasProps) {
         },
       };
     });
-  }, [nodes, hoveredNodeId, connectedNodeIds, searchQuery, matchesSearch]);
+  }, [nodes, hoveredNodeId, connectedNodeIds, searchQuery, matchesSearch, highlightedNodeIds]);
 
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     // If it's a folder node, drill into it

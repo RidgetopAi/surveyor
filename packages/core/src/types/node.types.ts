@@ -42,6 +42,8 @@ export interface FunctionNode extends BaseNode {
   isExported: boolean;
   isAsync: boolean;
   behavioral: BehavioralSummary | null;
+  /** Function source code (included for browser-based analysis) */
+  source?: string;
 }
 
 export interface ClassNode extends BaseNode {

@@ -7,17 +7,22 @@
  * - Files, functions, classes
  * - Imports and exports
  * - Parameters and return types
+ * - Behavioral analysis (optional, requires LLM API key)
  */
 
 import { Command } from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
 import { scanProject } from '../../parser/index.js';
+import { analyzeBehavior, createLLMClientFromEnv } from '../../analyzer/index.js';
+import type { AnalysisProgress } from '../../types/analyzer.types.js';
 
 interface ScanCommandOptions {
   output?: string;
   format: 'json';
   verbose: boolean;
+  analyze: boolean;
+  noAnalyze: boolean;
 }
 
 export const scanCommand = new Command('scan')
@@ -26,8 +31,11 @@ export const scanCommand = new Command('scan')
   .option('-o, --output <dir>', 'Output directory (default: stdout)')
   .option('-f, --format <type>', 'Output format: json', 'json')
   .option('-v, --verbose', 'Verbose output', false)
+  .option('-a, --analyze', 'Run behavioral analysis on functions (requires SURVEYOR_LLM_API_KEY)', false)
+  .option('--no-analyze', 'Skip behavioral analysis')
   .action(async (targetPath: string, options: ScanCommandOptions) => {
-    const { output, format: _format, verbose } = options;
+    const { output, format: _format, verbose, analyze, noAnalyze } = options;
+    const shouldAnalyze = analyze && !noAnalyze;
 
     // Resolve the target path
     const absolutePath = path.resolve(targetPath);
@@ -46,7 +54,44 @@ export const scanCommand = new Command('scan')
 
     try {
       // Run the scan
-      const result = await scanProject(absolutePath, { verbose });
+      let result = await scanProject(absolutePath, { verbose });
+
+      // Run behavioral analysis if requested
+      if (shouldAnalyze) {
+        try {
+          const client = createLLMClientFromEnv();
+          const outputDir = output ? path.resolve(output) : path.join(absolutePath, '.surveyor');
+
+          if (verbose) {
+            console.log('\nRunning behavioral analysis...');
+          }
+
+          // Progress callback for verbose mode
+          const onProgress = verbose
+            ? (progress: AnalysisProgress) => {
+                const cacheIndicator = progress.fromCache ? ' (cached)' : '';
+                process.stdout.write(
+                  `\r  Analyzing ${progress.current}/${progress.total}: ${progress.functionName}${cacheIndicator}          `
+                );
+              }
+            : undefined;
+
+          result = await analyzeBehavior(result, client, {
+            onProgress,
+            cacheDir: outputDir,
+            model: process.env.SURVEYOR_LLM_MODEL || 'grok-4-1-fast-reasoning',
+          });
+
+          if (verbose) {
+            console.log('\n  Analysis complete.');
+            console.log(`  Analyzed: ${result.stats.analyzedCount}`);
+          }
+        } catch (analyzeErr) {
+          const msg = analyzeErr instanceof Error ? analyzeErr.message : String(analyzeErr);
+          console.error(`\nWarning: Behavioral analysis failed: ${msg}`);
+          console.error('Continuing with scan results only.');
+        }
+      }
 
       // Format output
       const jsonOutput = JSON.stringify(result, null, 2);
@@ -67,6 +112,9 @@ export const scanCommand = new Command('scan')
         console.log(`  Files: ${result.stats.totalFiles}`);
         console.log(`  Functions: ${result.stats.totalFunctions}`);
         console.log(`  Classes: ${result.stats.totalClasses}`);
+        if (shouldAnalyze) {
+          console.log(`  Analyzed: ${result.stats.analyzedCount}`);
+        }
         if (result.errors.length > 0) {
           console.log(`  Errors: ${result.errors.length}`);
         }

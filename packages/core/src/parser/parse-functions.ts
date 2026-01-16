@@ -69,6 +69,7 @@ export function parseFunctions(
       isExported: func.isExported(),
       isAsync: func.isAsync(),
       behavioral: null, // Phase 4
+      source: func.getText(),
     };
 
     functions.push(node);
@@ -87,6 +88,7 @@ export function parseFunctions(
         const line = decl.getStartLineNumber();
         const id = generateFunctionId(fileId, name, line);
 
+        // Get the full variable declaration for arrow functions to include const/export
         const node: FunctionNode = {
           id,
           type: NodeType.Function,
@@ -101,6 +103,7 @@ export function parseFunctions(
           isExported: statement.isExported(),
           isAsync: arrowFunc.isAsync(),
           behavioral: null, // Phase 4
+          source: statement.getText(),
         };
 
         functions.push(node);

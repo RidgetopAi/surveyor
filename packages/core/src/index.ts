@@ -10,3 +10,6 @@ export * from './types/index.js';
 
 // Parser
 export * from './parser/index.js';
+
+// Analyzer
+export * from './analyzer/index.js';

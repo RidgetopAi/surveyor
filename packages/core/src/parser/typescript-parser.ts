@@ -19,6 +19,8 @@ import { ScanStatus } from '../types/scan.types.js';
 import type { FileNode, FunctionNode, ClassNode, NodeMap } from '../types/node.types.js';
 import { NodeType } from '../types/node.types.js';
 import { WarningLevel } from '../types/warning.types.js';
+import type { WarningDetectorOptions } from '../types/analyzer.types.js';
+import { detectWarnings, updateWarningStats } from '../analyzer/warning-detector.js';
 
 import { parseImports } from './parse-imports.js';
 import { parseExports } from './parse-exports.js';
@@ -27,6 +29,10 @@ import { parseClasses } from './parse-classes.js';
 
 export interface ScanOptions {
   verbose?: boolean;
+  /** Skip warning detection */
+  skipWarnings?: boolean;
+  /** Warning detector options */
+  warningOptions?: WarningDetectorOptions;
 }
 
 /**
@@ -287,16 +293,30 @@ export async function scanProject(
     stats,
     nodes,
     connections: [], // Phase 2: Build connections from imports
-    warnings: [],    // Phase 5: Detect warnings
+    warnings: [],    // Populated below
     clusters: [],    // Phase 7: Build clusters
     errors,
   };
+
+  // Detect warnings (unless skipped)
+  if (!options.skipWarnings) {
+    if (verbose) {
+      console.log(`\nDetecting warnings...`);
+    }
+    result.warnings = detectWarnings(result, options.warningOptions);
+    updateWarningStats(result);
+
+    if (verbose) {
+      console.log(`  Found ${result.warnings.length} warnings`);
+    }
+  }
 
   if (verbose) {
     console.log(`\nScan complete:`);
     console.log(`  Files: ${stats.totalFiles}`);
     console.log(`  Functions: ${stats.totalFunctions}`);
     console.log(`  Classes: ${stats.totalClasses}`);
+    console.log(`  Warnings: ${result.stats.totalWarnings}`);
     console.log(`  Errors: ${errors.length}`);
   }
 

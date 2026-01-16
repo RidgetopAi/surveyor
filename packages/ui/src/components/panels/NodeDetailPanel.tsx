@@ -1,10 +1,11 @@
 /**
  * Panel showing details for selected node
  * Phase 3: Shows file name, path, functions, imports
+ * Phase 4: Shows behavioral summaries and flags for functions
  */
 
 import { useScanStore } from '../../stores/scan-store';
-import type { FileNode, NodeType } from '@surveyor/core';
+import type { FileNode, FunctionNode, NodeType, BehavioralFlags } from '@surveyor/core';
 
 interface NodeDetailPanelProps {
   className?: string;
@@ -89,16 +90,47 @@ export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
             Functions ({node.functions.length})
           </h3>
           {node.functions.length > 0 ? (
-            <ul className="space-y-1">
+            <ul className="space-y-3">
               {node.functions.map((fnId) => {
-                const fnNode = currentScan.nodes[fnId];
+                const fnNode = currentScan.nodes[fnId] as FunctionNode | undefined;
                 const fnName = fnNode?.name || fnId;
+                const behavioral = fnNode?.behavioral;
+
                 return (
                   <li
                     key={fnId}
-                    className="text-text-primary text-sm font-mono py-1 px-2 bg-surface-1 rounded"
+                    className="text-sm bg-surface-1 rounded p-2"
                   >
-                    {fnName}()
+                    <div className="font-mono text-text-primary">
+                      {fnName}()
+                      {fnNode?.isAsync && (
+                        <span className="ml-2 text-xs px-1.5 py-0.5 bg-accent-secondary/20 text-accent-secondary rounded">
+                          async
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Behavioral Summary */}
+                    {behavioral && (
+                      <div className="mt-2 space-y-2">
+                        <p className="text-text-secondary text-xs leading-relaxed">
+                          {behavioral.summary}
+                        </p>
+
+                        {/* Side Effect Flags */}
+                        <FlagBadges flags={behavioral.flags} />
+
+                        {/* Source Indicator */}
+                        <div className="flex items-center gap-1 text-xs text-text-muted">
+                          <SourceIcon source={behavioral.source} />
+                          <span>
+                            {behavioral.source === 'ai' ? 'AI-generated' :
+                             behavioral.source === 'docstring' ? 'From docstring' :
+                             'Manual'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </li>
                 );
               })}
@@ -168,5 +200,81 @@ export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
         </section>
       </div>
     </div>
+  );
+}
+
+/**
+ * Display behavioral flags as colored badges
+ */
+function FlagBadges({ flags }: { flags: BehavioralFlags }) {
+  const activeFlags: { key: string; label: string; color: string }[] = [];
+
+  if (flags.databaseRead) activeFlags.push({ key: 'dbr', label: 'DB Read', color: 'bg-blue-500/20 text-blue-400' });
+  if (flags.databaseWrite) activeFlags.push({ key: 'dbw', label: 'DB Write', color: 'bg-orange-500/20 text-orange-400' });
+  if (flags.httpCall) activeFlags.push({ key: 'http', label: 'HTTP', color: 'bg-purple-500/20 text-purple-400' });
+  if (flags.fileRead) activeFlags.push({ key: 'fr', label: 'File Read', color: 'bg-cyan-500/20 text-cyan-400' });
+  if (flags.fileWrite) activeFlags.push({ key: 'fw', label: 'File Write', color: 'bg-yellow-500/20 text-yellow-400' });
+  if (flags.sendsNotification) activeFlags.push({ key: 'notif', label: 'Notification', color: 'bg-pink-500/20 text-pink-400' });
+  if (flags.modifiesGlobalState) activeFlags.push({ key: 'global', label: 'Global State', color: 'bg-red-500/20 text-red-400' });
+
+  if (activeFlags.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {activeFlags.map((flag) => (
+        <span
+          key={flag.key}
+          className={`text-xs px-1.5 py-0.5 rounded ${flag.color}`}
+        >
+          {flag.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Icon indicating the source of the summary
+ */
+function SourceIcon({ source }: { source: string }) {
+  if (source === 'ai') {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="text-accent-primary"
+      >
+        <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1a7 7 0 0 1-7 7H9a7 7 0 0 1-7-7H1a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
+        <circle cx="9" cy="13" r="1" />
+        <circle cx="15" cy="13" r="1" />
+        <path d="M9 17h6" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14,2 14,8 20,8" />
+    </svg>
   );
 }
