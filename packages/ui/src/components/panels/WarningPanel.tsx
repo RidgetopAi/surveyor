@@ -33,7 +33,7 @@ const levelConfig: Record<WarningLevel, { icon: typeof AlertCircle; color: strin
 const levelOrder: WarningLevel[] = ['error', 'warning', 'info'];
 
 export function WarningPanel({ isOpen, onClose }: WarningPanelProps) {
-  const { currentScan, selectNode, setHighlightedNodes } = useScanStore();
+  const { currentScan, selectNode, setHighlightedNodes, drillInto, getNodeById } = useScanStore();
   const [expandedLevels, setExpandedLevels] = useState<Set<WarningLevel>>(
     new Set<WarningLevel>(['error', 'warning'])
   );
@@ -64,10 +64,20 @@ export function WarningPanel({ isOpen, onClose }: WarningPanelProps) {
     setSelectedWarningId(warning.id);
     // Highlight all affected nodes
     setHighlightedNodes(warning.affectedNodes);
-    // Select the first affected node
-    const firstNode = warning.affectedNodes[0];
-    if (firstNode) {
-      selectNode(firstNode);
+
+    // Navigate to the folder containing the first affected file
+    const firstNodeId = warning.affectedNodes[0];
+    if (firstNodeId) {
+      const node = getNodeById(firstNodeId);
+      if (node && node.filePath) {
+        // Extract folder path from file path
+        const parts = node.filePath.split('/');
+        const folderPath = parts.length > 1 ? parts.slice(0, -1).join('/') : '.';
+        // Drill into the folder to show the file
+        drillInto(folderPath);
+      }
+      // Select the affected node
+      selectNode(firstNodeId);
     }
   };
 

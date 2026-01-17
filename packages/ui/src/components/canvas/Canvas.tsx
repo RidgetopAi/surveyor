@@ -60,6 +60,7 @@ interface FolderLayoutNode {
     fileCount: number;
     functionCount: number;
     warningCount: number;
+    onWarningBadgeClick?: (folderPath: string) => void;
   };
 }
 
@@ -103,12 +104,40 @@ function buildFolderWarningCounts(
 }
 
 /**
+ * Get file IDs with warnings in a specific folder
+ */
+function getFilesWithWarningsInFolder(
+  folderPath: string,
+  warnings: ScanResult['warnings'],
+  nodes: ScanResult['nodes']
+): string[] {
+  const fileIds = new Set<string>();
+
+  for (const warning of warnings) {
+    for (const nodeId of warning.affectedNodes) {
+      const node = nodes[nodeId];
+      if (node) {
+        // Extract folder path from file path
+        const parts = node.filePath.split('/');
+        const nodeFolderPath = parts.length > 1 ? parts.slice(0, -1).join('/') : '.';
+        if (nodeFolderPath === folderPath) {
+          fileIds.add(nodeId);
+        }
+      }
+    }
+  }
+
+  return Array.from(fileIds);
+}
+
+/**
  * Calculate layout for folder nodes in a grid
  */
 function calculateFolderGridLayout(
   groups: FolderGroup[],
   warnings: ScanResult['warnings'],
-  nodes: ScanResult['nodes']
+  nodes: ScanResult['nodes'],
+  onWarningBadgeClick?: (folderPath: string) => void
 ): FolderLayoutNode[] {
   const warningCounts = buildFolderWarningCounts(groups, warnings, nodes);
 
@@ -131,6 +160,7 @@ function calculateFolderGridLayout(
         fileCount: group.files.length,
         functionCount: totalFunctions,
         warningCount: warningCounts.get(group.path) || 0,
+        onWarningBadgeClick,
       },
     };
   });
@@ -147,7 +177,22 @@ function CanvasInner({ scanData }: CanvasProps) {
   const hoverNode = useScanStore((state) => state.hoverNode);
   const selectNode = useScanStore((state) => state.selectNode);
   const drillInto = useScanStore((state) => state.drillInto);
+  const setHighlightedNodes = useScanStore((state) => state.setHighlightedNodes);
   const searchQuery = useScanStore((state) => state.searchQuery);
+
+  // Handle warning badge click on folder nodes
+  const handleWarningBadgeClick = useCallback((folderPath: string) => {
+    if (!scanData) return;
+    // Get files with warnings in this folder
+    const filesWithWarnings = getFilesWithWarningsInFolder(
+      folderPath,
+      scanData.warnings,
+      scanData.nodes
+    );
+    // Drill into the folder and highlight files with warnings
+    drillInto(folderPath);
+    setHighlightedNodes(filesWithWarnings);
+  }, [scanData, drillInto, setHighlightedNodes]);
 
   // Track previous folder for fitView on change
   const prevFolderRef = useRef(currentFolder);
@@ -165,7 +210,12 @@ function CanvasInner({ scanData }: CanvasProps) {
 
     // Root view: show folders
     if (currentFolder === null) {
-      const folderNodes = calculateFolderGridLayout(groups, scanData.warnings, scanData.nodes);
+      const folderNodes = calculateFolderGridLayout(
+        groups,
+        scanData.warnings,
+        scanData.nodes,
+        handleWarningBadgeClick
+      );
       return {
         displayNodes: folderNodes as Node[],
         displayEdges: [] as Edge[],
@@ -221,7 +271,7 @@ function CanvasInner({ scanData }: CanvasProps) {
       displayEdges: edges,
       edgeMap: connectionMap,
     };
-  }, [scanData, currentFolder]);
+  }, [scanData, currentFolder, handleWarningBadgeClick]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(displayNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(displayEdges);
@@ -236,16 +286,50 @@ function CanvasInner({ scanData }: CanvasProps) {
     setEdges(displayEdges);
   }, [displayEdges, setEdges]);
 
-  // Fit view when folder changes
+  // Track last focused highlights to avoid duplicate focus
+  const lastFocusedHighlights = useRef<string>('');
+
+  // Fit view when folder changes (without highlights)
   useEffect(() => {
     if (prevFolderRef.current !== currentFolder) {
       prevFolderRef.current = currentFolder;
-      // Small delay to let nodes render
-      setTimeout(() => {
-        fitView({ padding: 0.2, duration: 200 });
-      }, 50);
+      // Only do generic fitView if no highlights pending
+      if (highlightedNodeIds.length === 0) {
+        setTimeout(() => {
+          fitView({ padding: 0.2, duration: 200 });
+        }, 50);
+      }
     }
-  }, [currentFolder, fitView]);
+  }, [currentFolder, fitView, highlightedNodeIds.length]);
+
+  // Focus on highlighted nodes whenever they change
+  useEffect(() => {
+    if (highlightedNodeIds.length === 0) {
+      lastFocusedHighlights.current = '';
+      return;
+    }
+
+    // Create a key to track if we've already focused on this exact set
+    const highlightKey = highlightedNodeIds.sort().join(',');
+    if (highlightKey === lastFocusedHighlights.current) {
+      return; // Already focused on these
+    }
+
+    // Wait for nodes to render after folder navigation
+    setTimeout(() => {
+      const nodesToFocus = displayNodes.filter(n => highlightedNodeIds.includes(n.id));
+      if (nodesToFocus.length > 0) {
+        lastFocusedHighlights.current = highlightKey;
+        fitView({
+          nodes: nodesToFocus,
+          padding: 0.5,
+          duration: 300,
+          maxZoom: 1.2,
+          minZoom: 1.0,
+        });
+      }
+    }, 100); // Slightly longer delay to ensure folder navigation completes
+  }, [highlightedNodeIds, displayNodes, fitView]);
 
   // Get connected node IDs for highlighting
   const connectedNodeIds = useMemo(() => {

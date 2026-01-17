@@ -13,6 +13,7 @@ export interface FolderNodeDataProps {
   warningCount: number;
   isFaded?: boolean;
   isHighlighted?: boolean;
+  onWarningBadgeClick?: (folderPath: string) => void;
   [key: string]: unknown;
 }
 
@@ -22,7 +23,14 @@ export interface FolderNodeDataProps {
  * Click to drill down into the folder
  */
 function FolderNodeComponent({ data }: { data: FolderNodeDataProps }) {
-  const { isFaded, isHighlighted, warningCount } = data;
+  const { isFaded, isHighlighted, warningCount, folderPath, onWarningBadgeClick } = data;
+
+  const handleBadgeClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent folder drill-in
+    if (onWarningBadgeClick) {
+      onWarningBadgeClick(folderPath);
+    }
+  };
 
   return (
     <div
@@ -34,11 +42,15 @@ function FolderNodeComponent({ data }: { data: FolderNodeDataProps }) {
         ${isHighlighted ? 'border-accent-primary bg-surface-2' : 'border-surface-3'}
       `}
     >
-      {/* Warning badge */}
+      {/* Warning badge - clickable to show files with warnings */}
       {warningCount > 0 && (
-        <div className="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-status-warning text-surface-0 text-xs font-semibold">
+        <button
+          onClick={handleBadgeClick}
+          className="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-status-warning text-surface-0 text-xs font-semibold hover:bg-status-warning/80 hover:scale-110 transition-transform"
+          title="Click to show files with warnings"
+        >
           {warningCount}
-        </div>
+        </button>
       )}
 
       <Handle
