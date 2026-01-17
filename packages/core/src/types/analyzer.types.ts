@@ -97,6 +97,32 @@ export interface AnalysisProgress {
 }
 
 /**
+ * Unified progress for both scanning and analyzing phases
+ * Used by SSE endpoint to stream real-time progress to UI
+ */
+export interface ScanProgress {
+  /** Current phase of the scan operation */
+  phase: 'scanning' | 'analyzing' | 'complete' | 'error';
+  /** Current item being processed */
+  current: number;
+  /** Total items to process in current phase */
+  total: number;
+  /** File path being processed (scanning phase) */
+  filePath?: string;
+  /** Function name being analyzed (analyzing phase) */
+  functionName?: string;
+  /** Whether result came from cache (analyzing phase) */
+  fromCache?: boolean;
+  /** Error message if phase is 'error' */
+  error?: string;
+}
+
+/**
+ * Callback for unified scan progress updates
+ */
+export type ScanProgressCallback = (progress: ScanProgress) => void;
+
+/**
  * LLM analysis result from analyzeFunction
  */
 export interface LLMAnalysisResult {

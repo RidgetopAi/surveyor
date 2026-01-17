@@ -20,7 +20,7 @@ import { ScanStatus } from '../types/scan.types.js';
 import type { FileNode, FunctionNode, ClassNode, NodeMap } from '../types/node.types.js';
 import { NodeType } from '../types/node.types.js';
 import { WarningLevel } from '../types/warning.types.js';
-import type { WarningDetectorOptions, PathAliases } from '../types/analyzer.types.js';
+import type { WarningDetectorOptions, PathAliases, ScanProgressCallback } from '../types/analyzer.types.js';
 import { detectWarnings, updateWarningStats } from '../analyzer/warning-detector.js';
 
 import { parseImports } from './parse-imports.js';
@@ -35,6 +35,8 @@ export interface ScanOptions {
   skipWarnings?: boolean;
   /** Warning detector options */
   warningOptions?: WarningDetectorOptions;
+  /** Progress callback for real-time updates during scanning */
+  onProgress?: ScanProgressCallback;
 }
 
 /**
@@ -378,7 +380,7 @@ export async function scanProject(
   projectPath: string,
   options: ScanOptions = {}
 ): Promise<ScanResult> {
-  const { verbose = false } = options;
+  const { verbose = false, onProgress } = options;
   const absolutePath = path.resolve(projectPath);
   const scanId = uuidv4();
   const startTime = new Date().toISOString();
@@ -420,7 +422,24 @@ export async function scanProject(
   }
 
   // Parse each source file
-  for (const sourceFile of project.getSourceFiles()) {
+  const sourceFiles = project.getSourceFiles();
+  const totalFiles = sourceFiles.length;
+  let fileIndex = 0;
+
+  for (const sourceFile of sourceFiles) {
+    const filePath = sourceFile.getFilePath();
+    const relativePath = path.relative(absolutePath, filePath);
+
+    // Emit progress before parsing
+    if (onProgress) {
+      onProgress({
+        phase: 'scanning',
+        current: fileIndex + 1,
+        total: totalFiles,
+        filePath: relativePath,
+      });
+    }
+
     try {
       const { fileNode, functionNodes, classNodes } = parseSourceFile(
         sourceFile,
@@ -446,14 +465,15 @@ export async function scanProject(
       }
     } catch (err) {
       const error = err instanceof Error ? err.message : String(err);
-      const filePath = sourceFile.getFilePath();
       errors.push({
-        filePath: path.relative(absolutePath, filePath),
+        filePath: relativePath,
         line: null,
         message: `Failed to parse file: ${error}`,
         recoverable: true,
       });
     }
+
+    fileIndex++;
   }
 
   // Calculate statistics

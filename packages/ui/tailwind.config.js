@@ -17,6 +17,8 @@ export default {
 
         // Accents (semantic only)
         'accent-primary': '#60a5fa', // Selection, focus
+        'accent-blue': '#60a5fa', // Standard scan color
+        'accent-purple': '#a855f7', // AI-enabled scan color
 
         // Status
         'status-healthy': '#4ade80',

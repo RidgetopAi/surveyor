@@ -5,6 +5,26 @@
 import { create } from 'zustand';
 import type { ScanResult, Node, Connection, Warning } from '@surveyor/core';
 
+export type ScanPhase = 'idle' | 'scanning' | 'analyzing' | 'complete' | 'error';
+
+export interface LogEntry {
+  id: string;
+  message: string;
+  type: 'info' | 'success' | 'progress';
+  timestamp: number;
+}
+
+export interface ScanProgress {
+  phase: ScanPhase;
+  isAIEnabled: boolean;
+  filesDiscovered: number;
+  totalFiles: number;
+  currentFile: string | null;
+  analyzedCount: number;
+  totalFunctions: number;
+  logEntries: LogEntry[];
+}
+
 export interface ScanState {
   currentScan: ScanResult | null;
   selectedNodeId: string | null;
@@ -15,6 +35,7 @@ export interface ScanState {
   searchQuery: string; // search filter for nodes
   isLoading: boolean;
   error: Error | null;
+  scanProgress: ScanProgress;
 }
 
 export interface ScanActions {
@@ -31,9 +52,26 @@ export interface ScanActions {
   getNodeById: (id: string) => Node | undefined;
   getConnectionsForNode: (nodeId: string) => Connection[];
   getWarningsForNode: (nodeId: string) => Warning[];
+  // Scan progress actions
+  startScan: (isAIEnabled: boolean) => void;
+  updateScanProgress: (update: Partial<ScanProgress>) => void;
+  addLogEntry: (message: string, type: LogEntry['type']) => void;
+  setScanPhase: (phase: ScanPhase) => void;
+  resetScanProgress: () => void;
 }
 
 export type ScanStore = ScanState & ScanActions;
+
+const initialScanProgress: ScanProgress = {
+  phase: 'idle',
+  isAIEnabled: false,
+  filesDiscovered: 0,
+  totalFiles: 0,
+  currentFile: null,
+  analyzedCount: 0,
+  totalFunctions: 0,
+  logEntries: [],
+};
 
 export const useScanStore = create<ScanStore>((set, get) => ({
   // State
@@ -46,9 +84,18 @@ export const useScanStore = create<ScanStore>((set, get) => ({
   searchQuery: '',
   isLoading: false,
   error: null,
+  scanProgress: { ...initialScanProgress },
 
   // Actions
-  setScan: (scan) => set({ currentScan: scan, error: null, currentFolder: null, navigationPath: [], searchQuery: '', highlightedNodeIds: [] }),
+  setScan: (scan) => set({
+    currentScan: scan,
+    error: null,
+    currentFolder: null,
+    navigationPath: [],
+    searchQuery: '',
+    highlightedNodeIds: [],
+    scanProgress: { ...initialScanProgress, phase: 'complete' },
+  }),
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error, isLoading: false }),
   selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
@@ -105,4 +152,41 @@ export const useScanStore = create<ScanStore>((set, get) => ({
       w.affectedNodes.includes(nodeId)
     );
   },
+
+  // Scan progress actions
+  startScan: (isAIEnabled) => set({
+    scanProgress: {
+      ...initialScanProgress,
+      phase: 'scanning',
+      isAIEnabled,
+    },
+    error: null,
+  }),
+
+  updateScanProgress: (update) => set((state) => ({
+    scanProgress: { ...state.scanProgress, ...update },
+  })),
+
+  addLogEntry: (message, type) => set((state) => ({
+    scanProgress: {
+      ...state.scanProgress,
+      logEntries: [
+        ...state.scanProgress.logEntries,
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          message,
+          type,
+          timestamp: Date.now(),
+        },
+      ],
+    },
+  })),
+
+  setScanPhase: (phase) => set((state) => ({
+    scanProgress: { ...state.scanProgress, phase },
+  })),
+
+  resetScanProgress: () => set({
+    scanProgress: { ...initialScanProgress },
+  }),
 }));

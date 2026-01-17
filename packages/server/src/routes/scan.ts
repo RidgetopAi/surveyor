@@ -8,28 +8,28 @@
  */
 
 import { Hono } from 'hono';
-import { streamSSE } from 'hono/streaming';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { v4 as uuidv4 } from 'uuid';
 import {
   scanProject,
   analyzeBehavior,
   createLLMClientFromEnv,
   type ScanResult,
-  type AnalysisProgress,
+  type ScanProgress,
 } from '@surveyor/core';
 
 // Store active scans for progress tracking
 const activeScans = new Map<string, {
-  progress: AnalysisProgress | null;
-  phase: 'scanning' | 'analyzing' | 'complete' | 'error';
-  error?: string;
+  progress: ScanProgress;
+  result?: ScanResult;
+  outputPath?: string;
 }>();
 
 export const scanRoutes = new Hono();
 
 /**
- * POST / - Trigger a new scan
+ * POST / - Trigger a new scan (returns immediately, runs in background)
  */
 scanRoutes.post('/', async (c) => {
   const body = await c.req.json<{
@@ -52,69 +52,105 @@ scanRoutes.post('/', async (c) => {
     return c.json({ error: `Path is not a directory: ${absolutePath}` }, 400);
   }
 
-  try {
-    console.log(`[scan] Starting scan of ${absolutePath}`);
+  // Generate scanId upfront so we can return immediately
+  const scanId = uuidv4();
 
-    // Run the scan
-    let result = await scanProject(absolutePath, { verbose: false });
-    console.log(`[scan] Parsed ${result.stats.totalFiles} files, ${result.stats.totalFunctions} functions`);
+  // Initialize progress tracking
+  activeScans.set(scanId, {
+    progress: { phase: 'scanning', current: 0, total: 0 },
+  });
 
-    // Store initial progress
-    activeScans.set(result.id, { progress: null, phase: 'scanning' });
+  console.log(`[scan] Starting scan ${scanId} of ${absolutePath}`);
 
-    // Run behavioral analysis if not skipped and API key available
-    const skipAnalysis = options.skipAnalysis ?? !process.env.SURVEYOR_LLM_API_KEY;
+  // Run scan in background
+  setImmediate(async () => {
+    try {
+      // Run the scan with progress callback
+      let result = await scanProject(absolutePath, {
+        verbose: false,
+        onProgress: (progress) => {
+          activeScans.set(scanId, { progress });
+          if (progress.current % 10 === 0 || progress.current === progress.total) {
+            console.log(`[scan] ${progress.current}/${progress.total}: ${progress.filePath}`);
+          }
+        },
+      });
 
-    if (!skipAnalysis && process.env.SURVEYOR_LLM_API_KEY) {
-      try {
-        activeScans.set(result.id, { progress: null, phase: 'analyzing' });
+      // Override the generated ID with our pre-assigned scanId
+      result = { ...result, id: scanId };
 
-        const client = createLLMClientFromEnv();
-        const outputDir = options.outputDir || path.join(absolutePath, '.surveyor');
+      console.log(`[scan] Parsed ${result.stats.totalFiles} files, ${result.stats.totalFunctions} functions`);
 
-        const onProgress = (progress: AnalysisProgress) => {
-          activeScans.set(result.id, { progress, phase: 'analyzing' });
-          console.log(`[analyze] ${progress.current}/${progress.total}: ${progress.functionName}`);
-        };
+      // Run behavioral analysis if not skipped and API key available
+      const skipAnalysis = options.skipAnalysis ?? !process.env.SURVEYOR_LLM_API_KEY;
 
-        const concurrency = parseInt(process.env.SURVEYOR_LLM_CONCURRENCY || '10', 10);
-        console.log(`[analyze] Starting with concurrency=${concurrency}`);
+      if (!skipAnalysis && process.env.SURVEYOR_LLM_API_KEY) {
+        try {
+          activeScans.set(scanId, {
+            progress: { phase: 'analyzing', current: 0, total: result.stats.totalFunctions },
+          });
 
-        result = await analyzeBehavior(result, client, {
-          onProgress,
-          cacheDir: outputDir,
-          model: process.env.SURVEYOR_LLM_MODEL || 'grok-4-1-fast-reasoning',
-          concurrency,
-        });
-      } catch (analyzeErr) {
-        const msg = analyzeErr instanceof Error ? analyzeErr.message : String(analyzeErr);
-        console.error(`Analysis failed: ${msg}`);
-        // Continue with scan results only
+          const client = createLLMClientFromEnv();
+          const outputDir = options.outputDir || path.join(absolutePath, '.surveyor');
+
+          const concurrency = parseInt(process.env.SURVEYOR_LLM_CONCURRENCY || '10', 10);
+          console.log(`[analyze] Starting with concurrency=${concurrency}`);
+
+          result = await analyzeBehavior(result, client, {
+            onProgress: (analysisProgress) => {
+              activeScans.set(scanId, {
+                progress: {
+                  phase: 'analyzing',
+                  current: analysisProgress.current,
+                  total: analysisProgress.total,
+                  functionName: analysisProgress.functionName,
+                  filePath: analysisProgress.filePath,
+                  fromCache: analysisProgress.fromCache,
+                },
+              });
+              console.log(`[analyze] ${analysisProgress.current}/${analysisProgress.total}: ${analysisProgress.functionName}`);
+            },
+            cacheDir: outputDir,
+            model: process.env.SURVEYOR_LLM_MODEL || 'grok-4-1-fast-reasoning',
+            concurrency,
+          });
+        } catch (analyzeErr) {
+          const msg = analyzeErr instanceof Error ? analyzeErr.message : String(analyzeErr);
+          console.error(`Analysis failed: ${msg}`);
+          // Continue with scan results only
+        }
       }
+
+      // Save scan result
+      const outputDir = options.outputDir || path.join(absolutePath, '.surveyor');
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
+      const outputPath = path.join(outputDir, `scan-${scanId}.json`);
+      fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
+
+      // Mark complete with result available
+      activeScans.set(scanId, {
+        progress: { phase: 'complete', current: result.stats.totalFiles, total: result.stats.totalFiles },
+        result,
+        outputPath,
+      });
+      console.log(`[scan] Complete! Saved to ${outputPath}`);
+    } catch (err) {
+      const error = err instanceof Error ? err.message : String(err);
+      console.error(`[scan] Failed: ${error}`);
+      activeScans.set(scanId, {
+        progress: { phase: 'error', current: 0, total: 0, error },
+      });
     }
+  });
 
-    // Save scan result
-    const outputDir = options.outputDir || path.join(absolutePath, '.surveyor');
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-
-    const outputPath = path.join(outputDir, `scan-${result.id}.json`);
-    fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
-
-    activeScans.set(result.id, { progress: null, phase: 'complete' });
-    console.log(`[scan] Complete! Saved to ${outputPath}`);
-
-    return c.json({
-      scanId: result.id,
-      status: result.status,
-      outputPath,
-      result,
-    });
-  } catch (err) {
-    const error = err instanceof Error ? err.message : String(err);
-    return c.json({ error: `Scan failed: ${error}` }, 500);
-  }
+  // Return immediately with scanId
+  return c.json({
+    scanId,
+    status: 'IN_PROGRESS',
+  });
 });
 
 /**
@@ -195,39 +231,90 @@ scanRoutes.get('/:id', async (c) => {
 /**
  * GET /:id/progress - SSE stream for scan progress
  */
-scanRoutes.get('/:id/progress', (c) => {
+scanRoutes.get('/:id/progress', async (c) => {
   const id = c.req.param('id');
 
-  return streamSSE(c, async (stream) => {
-    // Poll for progress updates
-    const interval = setInterval(async () => {
-      const scanState = activeScans.get(id);
+  // Set SSE headers
+  c.header('Content-Type', 'text/event-stream');
+  c.header('Cache-Control', 'no-cache');
+  c.header('Connection', 'keep-alive');
+  c.header('Access-Control-Allow-Origin', '*');
 
-      if (!scanState) {
-        await stream.writeSSE({ data: JSON.stringify({ phase: 'not_found' }), event: 'error' });
-        clearInterval(interval);
-        return;
-      }
+  let interval: NodeJS.Timeout | null = null;
+  let closed = false;
 
-      // Send phase updates
-      await stream.writeSSE({
-        data: JSON.stringify({
-          phase: scanState.phase,
-          progress: scanState.progress,
-        }),
-        event: 'progress',
-      });
+  const stream = new ReadableStream({
+    start(controller) {
+      const encoder = new TextEncoder();
 
-      // Check if complete or error
-      if (scanState.phase === 'complete' || scanState.phase === 'error') {
-        clearInterval(interval);
-        await stream.close();
-      }
-    }, 500);
+      const sendEvent = (data: object) => {
+        if (closed) return;
+        try {
+          const message = `event: progress\ndata: ${JSON.stringify(data)}\n\n`;
+          controller.enqueue(encoder.encode(message));
+        } catch {
+          // Controller already closed
+          closed = true;
+          if (interval) clearInterval(interval);
+        }
+      };
 
-    // Cleanup on disconnect
-    stream.onAbort(() => {
-      clearInterval(interval);
-    });
+      const sendProgress = () => {
+        if (closed) return false;
+
+        const scanState = activeScans.get(id);
+
+        if (!scanState) {
+          sendEvent({ phase: 'not_found' });
+          return false;
+        }
+
+        const { progress, result, outputPath } = scanState;
+
+        sendEvent({
+          phase: progress.phase,
+          progress,
+          ...(progress.phase === 'complete' && result ? {
+            result: {
+              id: result.id,
+              stats: result.stats,
+              status: result.status,
+            },
+            outputPath,
+          } : {}),
+        });
+
+        return progress.phase !== 'complete' && progress.phase !== 'error';
+      };
+
+      // Send immediate first update
+      console.log(`[SSE ${id}] Sending first update`);
+      sendProgress();
+
+      // Poll for progress updates every 200ms
+      console.log(`[SSE ${id}] Starting poll interval`);
+      interval = setInterval(() => {
+        if (closed) {
+          if (interval) clearInterval(interval);
+          return;
+        }
+        console.log(`[SSE ${id}] Poll tick`);
+        sendProgress();
+      }, 200);
+    },
+    cancel() {
+      console.log(`[SSE ${id}] Client disconnected`);
+      closed = true;
+      if (interval) clearInterval(interval);
+    }
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+    },
   });
 });
