@@ -4,6 +4,7 @@
  * Phase 4: Shows behavioral summaries and flags for functions
  */
 
+import { useState } from 'react';
 import { useScanStore } from '../../stores/scan-store';
 import type { FileNode, FunctionNode, NodeType, BehavioralFlags } from '@surveyor/core';
 
@@ -12,10 +13,49 @@ interface NodeDetailPanelProps {
 }
 
 /**
+ * Open file in nvim via server API
+ * Returns { success: boolean, error?: string }
+ */
+async function openFileInEditor(
+  projectPath: string,
+  filePath: string,
+  line?: number
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch('/api/v1/open-file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectPath, filePath, line }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error };
+    }
+    return { success: true };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    return { success: false, error };
+  }
+}
+
+/**
  * Right-side detail panel showing information about selected node
  */
 export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
   const { selectedNodeId, currentScan, selectNode } = useScanStore();
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const handleOpenFile = async (projectPath: string, filePath: string, line?: number) => {
+    const result = await openFileInEditor(projectPath, filePath, line);
+    if (result.success) {
+      setToast({ message: 'Opened in nvim', type: 'success' });
+    } else {
+      setToast({ message: result.error || 'Failed to open', type: 'error' });
+    }
+    setTimeout(() => setToast(null), 2000);
+  };
 
   if (!selectedNodeId || !currentScan) {
     return null;
@@ -68,13 +108,30 @@ export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* File Path */}
+        {/* File Path - clickable to open in editor */}
         <section>
           <h3 className="text-text-secondary text-xs uppercase tracking-wider mb-2">Path</h3>
-          <code className="text-text-primary text-sm font-mono block break-all">
+          <button
+            onClick={() => handleOpenFile(currentScan.projectPath, node.filePath, node.line)}
+            className="text-left text-accent-primary text-sm font-mono block break-all hover:text-accent-secondary hover:underline transition-colors cursor-pointer"
+            title="Open in editor"
+          >
             {node.filePath}
-          </code>
+          </button>
         </section>
+
+        {/* Toast notification */}
+        {toast && (
+          <div
+            className={`fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-opacity ${
+              toast.type === 'success'
+                ? 'bg-green-600 text-white'
+                : 'bg-red-600 text-white'
+            }`}
+          >
+            {toast.message}
+          </div>
+        )}
 
         {/* Line Range */}
         <section>

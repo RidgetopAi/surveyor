@@ -5,7 +5,6 @@
 import { useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   ReactFlow,
-  MiniMap,
   Controls,
   Background,
   BackgroundVariant,
@@ -472,13 +471,6 @@ function CanvasInner({ scanData }: CanvasProps) {
         gap={20}
         size={1}
         color="#2e2e2e"
-      />
-      <MiniMap
-        nodeStrokeColor="#525252"
-        nodeColor="#242424"
-        nodeBorderRadius={4}
-        maskColor="rgba(15, 15, 15, 0.8)"
-        className="!bg-surface-1 !border-surface-3"
       />
       <Controls
         showInteractive={false}
