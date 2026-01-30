@@ -33,8 +33,11 @@ const app = new Hono();
 app.use('*', logger());
 app.use('*', cors({
   origin: (origin) => {
-    // Allow all localhost origins for development
-    if (!origin || origin.startsWith('http://localhost:')) {
+    // Allow localhost and ridgetopai.net origins
+    if (!origin ||
+        origin.startsWith('http://localhost:') ||
+        origin.endsWith('.ridgetopai.net') ||
+        origin.includes('ridgetopai.net')) {
       return origin || '*';
     }
     return null;
@@ -50,14 +53,20 @@ app.route('/api/v1/scans', scanRoutes);
 app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 // Open file in editor (nvim)
+// LOCAL_PROJECT_ROOT env var sets default project root for relative paths
 app.post('/api/v1/open-file', async (c) => {
   const body = await c.req.json<{
-    projectPath: string;
+    projectPath?: string;
     filePath: string;
     line?: number;
   }>();
 
-  const { projectPath, filePath, line } = body;
+  const { filePath, line } = body;
+
+  // Use provided projectPath, env var, or home directory as fallback
+  const projectPath = body.projectPath
+    || process.env.LOCAL_PROJECT_ROOT
+    || process.env.HOME + '/aidis';
 
   // Build absolute path
   const absolutePath = path.join(projectPath, filePath);
