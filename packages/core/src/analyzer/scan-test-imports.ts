@@ -20,6 +20,7 @@ import { Project } from 'ts-morph';
 import * as path from 'path';
 import type { PathAliases } from '../types/analyzer.types.js';
 import { parseImports } from '../parser/parse-imports.js';
+import { resolvePathAlias, normalizeImportSource } from '../resolver/import-resolver.js';
 
 /**
  * Test file patterns to scan for imports
@@ -45,59 +46,6 @@ const IGNORE_PATTERNS = [
   '**/.git/**',
   '**/coverage/**',
 ];
-
-/**
- * Resolve a path alias to its actual path
- * Duplicated from warning-detector.ts for module independence
- */
-function resolvePathAlias(source: string, pathAliases: PathAliases): string {
-  for (const [alias, targets] of Object.entries(pathAliases)) {
-    const aliasPattern = alias
-      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      .replace(/\\\*/g, '(.*)');
-
-    const regex = new RegExp(`^${aliasPattern}$`);
-    const match = source.match(regex);
-
-    if (match && targets.length > 0) {
-      const target = targets[0]!;
-      let resolved = target;
-      if (match[1] !== undefined) {
-        resolved = target.replace('*', match[1]);
-      }
-      return resolved.replace(/^\.\//, '');
-    }
-  }
-
-  return source;
-}
-
-/**
- * Normalize an import source relative to the importing file
- */
-function normalizeImportSource(source: string, importingFilePath: string): string {
-  if (!source.startsWith('.')) {
-    return source.replace(/\.(ts|tsx|js|jsx)$/, '');
-  }
-
-  const dir = importingFilePath.includes('/')
-    ? importingFilePath.substring(0, importingFilePath.lastIndexOf('/'))
-    : '';
-
-  const parts = (dir ? dir + '/' + source : source).split('/');
-  const resolved: string[] = [];
-
-  for (const part of parts) {
-    if (part === '.' || part === '') continue;
-    if (part === '..') {
-      resolved.pop();
-    } else {
-      resolved.push(part);
-    }
-  }
-
-  return resolved.join('/').replace(/\.(ts|tsx|js|jsx)$/, '');
-}
 
 /**
  * Scan test files for imports using ts-morph for accurate parsing

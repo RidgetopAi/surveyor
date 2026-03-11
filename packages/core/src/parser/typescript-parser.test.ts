@@ -29,7 +29,7 @@ describe('scanProject', () => {
     expect(result.stats.totalFiles).toBe(8);
     expect(result.stats.totalFunctions).toBe(14);
     expect(result.stats.totalClasses).toBe(0);
-    expect(result.stats.totalConnections).toBe(0); // Phase 2
+    expect(result.stats.totalConnections).toBeGreaterThan(0);
     expect(result.stats.totalWarnings).toBe(0);    // Warnings skipped
     expect(result.stats.pendingAnalysis).toBe(14); // Phase 4
   });
@@ -114,11 +114,17 @@ describe('scanProject', () => {
     }
   });
 
-  it('should have empty connections and clusters (Phase 2/7)', async () => {
+  it('should build connections from imports and references', async () => {
     const result = await scanProject(SAMPLE_PROJECT, { skipWarnings: true });
 
-    expect(result.connections).toHaveLength(0);
-    expect(result.clusters).toHaveLength(0);
+    expect(result.connections.length).toBeGreaterThan(0);
+    expect(result.clusters).toHaveLength(0); // Phase 7
+
+    // Every connection should have valid source and target IDs
+    for (const conn of result.connections) {
+      expect(result.nodes[conn.sourceId]).toBeDefined();
+      expect(result.nodes[conn.targetId]).toBeDefined();
+    }
   });
 
   it('should detect warnings when enabled', async () => {

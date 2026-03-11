@@ -20,6 +20,6 @@ export {
   type BrowserAnalyzeOptions,
   type SimpleLLMClient,
 } from './browser-analyzer.js';
-// export { buildConnections } from './connection-builder';
+export { buildConnections } from './connection-builder.js';
 export { detectWarnings, updateWarningStats } from './warning-detector.js';
 export { scanTestFileImports } from './scan-test-imports.js';

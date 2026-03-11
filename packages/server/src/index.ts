@@ -66,7 +66,7 @@ app.post('/api/v1/open-file', async (c) => {
   // Use provided projectPath, env var, or home directory as fallback
   const projectPath = body.projectPath
     || process.env.LOCAL_PROJECT_ROOT
-    || process.env.HOME + '/aidis';
+    || process.env.HOME + '/projects';
 
   // Build absolute path
   const absolutePath = path.join(projectPath, filePath);

@@ -13,10 +13,18 @@ import type { ScanResult, NodeMap, FileNode, FunctionNode } from '../types/index
 import type { Warning } from '../types/warning.types.js';
 import { WarningLevel, WarningCategory } from '../types/warning.types.js';
 import { NodeType } from '../types/node.types.js';
+import type { Connection } from '../types/connection.types.js';
+import { ConnectionType } from '../types/connection.types.js';
 import type { WarningDetectorOptions, PathAliases } from '../types/analyzer.types.js';
 import { DEFAULT_WARNING_OPTIONS } from '../types/analyzer.types.js';
 import { scanNonTsImports, mergeImportMaps } from './scan-non-ts-imports.js';
 import { scanTestFileImports } from './scan-test-imports.js';
+import {
+  resolvePathAlias,
+  normalizeImportSource,
+  normalizeFilePath,
+  getNormalizedPaths,
+} from '../resolver/import-resolver.js';
 
 /**
  * Next.js framework conventions - exports that are used by the framework
@@ -102,36 +110,6 @@ function isFrameworkConvention(exportName: string, filePath: string): boolean {
 }
 
 /**
- * Resolve a path alias to its actual path
- * e.g., "@/components/Foo" with paths {"@/*": ["./src/*"]} -> "src/components/Foo"
- */
-function resolvePathAlias(source: string, pathAliases: PathAliases): string {
-  for (const [alias, targets] of Object.entries(pathAliases)) {
-    // Convert alias pattern to regex (e.g., "@/*" -> /^@\/(.*)$/)
-    const aliasPattern = alias
-      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')  // Escape special regex chars
-      .replace(/\\\*/g, '(.*)');  // Convert * to capture group
-
-    const regex = new RegExp(`^${aliasPattern}$`);
-    const match = source.match(regex);
-
-    if (match && targets.length > 0) {
-      // Use the first target path
-      const target = targets[0]!;
-      // Replace * with the captured group
-      let resolved = target;
-      if (match[1] !== undefined) {
-        resolved = target.replace('*', match[1]);
-      }
-      // Remove leading ./ if present
-      return resolved.replace(/^\.\//, '');
-    }
-  }
-
-  return source;
-}
-
-/**
  * Detect all warnings in a scan result
  */
 export async function detectWarnings(
@@ -144,17 +122,17 @@ export async function detectWarnings(
 
   // Circular dependencies (file level)
   if (opts.detectFileCircular) {
-    warnings.push(...detectFileCircularDependencies(scanResult.nodes, opts, now));
+    warnings.push(...detectFileCircularDependencies(scanResult.nodes, scanResult.connections, now));
   }
 
   // Circular dependencies (function level) - more expensive
   if (opts.detectFunctionCircular) {
-    warnings.push(...detectFunctionCircularDependencies(scanResult.nodes, now));
+    warnings.push(...detectFunctionCircularDependencies(scanResult.nodes, scanResult.connections, now));
   }
 
   // Orphaned code
   if (opts.detectOrphaned) {
-    warnings.push(...detectOrphanedCode(scanResult.nodes, opts, now));
+    warnings.push(...detectOrphanedCode(scanResult.nodes, scanResult.connections, opts, now));
   }
 
   // Unused exports - scan non-TS files for imports too
@@ -172,30 +150,23 @@ export async function detectWarnings(
 
 /**
  * Detect circular dependencies at file level (import cycles)
+ * Uses pre-built Import connections from the connection graph
  */
 function detectFileCircularDependencies(
   nodes: NodeMap,
-  opts: Required<WarningDetectorOptions>,
+  connections: Connection[],
   detectedAt: string
 ): Warning[] {
   const warnings: Warning[] = [];
-  const fileNodes = Object.values(nodes).filter(
-    (n): n is FileNode => n.type === NodeType.File
-  );
 
-  // Build adjacency list from imports
+  // Build adjacency list from Import connections (already resolved)
   const graph = new Map<string, Set<string>>();
-
-  for (const file of fileNodes) {
-    const deps = new Set<string>();
-    for (const imp of file.imports) {
-      // Resolve import source to file ID
-      const targetId = resolveImportToFileId(imp.source, file.filePath, nodes, opts.pathAliases);
-      if (targetId) {
-        deps.add(targetId);
-      }
+  for (const conn of connections) {
+    if (conn.type !== ConnectionType.Import) continue;
+    if (!graph.has(conn.sourceId)) {
+      graph.set(conn.sourceId, new Set());
     }
-    graph.set(file.id, deps);
+    graph.get(conn.sourceId)!.add(conn.targetId);
   }
 
   // Find cycles using DFS
@@ -229,68 +200,85 @@ function detectFileCircularDependencies(
 
 /**
  * Detect circular dependencies at function level (call cycles)
+ * Uses pre-built FunctionCall connections from the connection graph
  */
-function detectFunctionCircularDependencies(_nodes: NodeMap, _detectedAt: string): Warning[] {
-  // This is a placeholder - function-level circular detection requires
-  // analyzing function call graphs which we don't have yet
-  // Would need to parse function bodies for call expressions
+function detectFunctionCircularDependencies(
+  nodes: NodeMap,
+  connections: Connection[],
+  detectedAt: string
+): Warning[] {
+  const warnings: Warning[] = [];
 
-  // For now, return empty - this can be implemented when we have call graph data
-  return [];
+  // Build adjacency list from FunctionCall connections
+  const graph = new Map<string, Set<string>>();
+  for (const conn of connections) {
+    if (conn.type !== ConnectionType.FunctionCall) continue;
+    if (!graph.has(conn.sourceId)) {
+      graph.set(conn.sourceId, new Set());
+    }
+    graph.get(conn.sourceId)!.add(conn.targetId);
+  }
+
+  // Skip if no function call connections
+  if (graph.size === 0) return warnings;
+
+  // Find cycles using DFS
+  const cycles = findCycles(graph);
+
+  for (const cycle of cycles) {
+    const funcNames = cycle.map((id) => {
+      const node = nodes[id];
+      return node ? node.name : id;
+    });
+
+    warnings.push({
+      id: uuidv4(),
+      category: WarningCategory.CircularDependency,
+      level: WarningLevel.Warning,
+      title: `Circular call chain: ${funcNames.join(' → ')} → ${funcNames[0]}`,
+      description: `These functions form a circular call chain. This can lead to infinite recursion if not handled carefully.`,
+      affectedNodes: cycle,
+      suggestion: {
+        summary: 'Review the call chain for potential infinite recursion',
+        reasoning: 'Circular function calls can cause stack overflows. Ensure there is a proper base case or termination condition.',
+        codeExample: null,
+        autoFixable: false,
+      },
+      detectedAt,
+    });
+  }
+
+  return warnings;
 }
 
 /**
  * Detect orphaned code (functions not called by anything)
  *
- * Uses reference tracking to accurately detect:
- * - Functions called within the same file
- * - Functions passed as callbacks (e.g., process.on('SIGTERM', shutdown))
- * - Functions referenced in object literals
+ * Uses the pre-built connection graph for accurate scope-aware detection:
+ * - Checks for incoming FunctionCall connections (both local and cross-file)
+ * - Checks top-level references (callbacks, object literals)
+ * - Eliminates false positives from cross-file name collisions
  */
 function detectOrphanedCode(
   nodes: NodeMap,
+  connections: Connection[],
   opts: Required<WarningDetectorOptions>,
   detectedAt: string
 ): Warning[] {
   const warnings: Warning[] = [];
 
-  const fileNodes = Object.values(nodes).filter(
-    (n): n is FileNode => n.type === NodeType.File
-  );
   const functionNodes = Object.values(nodes).filter(
     (n): n is FunctionNode => n.type === NodeType.Function
   );
 
-  // Build set of all exported function names
-  const exportedNames = new Set<string>();
-  for (const file of fileNodes) {
-    for (const exp of file.exports) {
-      exportedNames.add(exp.name);
+  // Build set of function IDs that have incoming FunctionCall connections
+  const calledFunctionIds = new Set<string>();
+  for (const conn of connections) {
+    if (conn.type === ConnectionType.FunctionCall) {
+      calledFunctionIds.add(conn.targetId);
     }
   }
 
-  // Build set of all imported names
-  const importedNames = new Set<string>();
-  for (const file of fileNodes) {
-    for (const imp of file.imports) {
-      for (const item of imp.items) {
-        importedNames.add(item.name);
-        if (item.alias) {
-          importedNames.add(item.alias);
-        }
-      }
-    }
-  }
-
-  // Build a map of fileId -> functions in that file for quick lookup
-  const functionsByFile = new Map<string, FunctionNode[]>();
-  for (const func of functionNodes) {
-    const existing = functionsByFile.get(func.parentFileId) || [];
-    existing.push(func);
-    functionsByFile.set(func.parentFileId, existing);
-  }
-
-  // Find functions that are not exported and not commonly named entry points
   const entryPointPatterns = [
     /^main$/i,
     /^index$/i,
@@ -304,53 +292,39 @@ function detectOrphanedCode(
   ];
 
   for (const func of functionNodes) {
-    // Skip if exported
+    // Skip if exported (used externally or as public API)
     if (func.isExported) continue;
 
-    // Skip if it's a class method
+    // Skip if it's a class method (called via instance)
     if (func.parentClassId) continue;
 
     // Skip if it matches entry point patterns
-    const isEntryPoint = entryPointPatterns.some((p) => p.test(func.name));
-    if (isEntryPoint) continue;
+    if (entryPointPatterns.some((p) => p.test(func.name))) continue;
 
     // Skip common utility patterns
-    if (func.name.startsWith('_')) continue; // Private by convention
+    if (func.name.startsWith('_')) continue;
 
     // Skip framework conventions
     if (opts.frameworkConventions && isFrameworkConvention(func.name, func.filePath)) {
       continue;
     }
 
-    // Check if imported/exported elsewhere (cross-file usage)
-    const isUsedCrossFile = importedNames.has(func.name) || exportedNames.has(func.name);
-    if (isUsedCrossFile) continue;
+    // Check if any FunctionCall connection targets this function
+    if (calledFunctionIds.has(func.id)) continue;
 
-    // Check if used within the same file (intra-file usage)
+    // Check top-level references (callbacks, event handlers, object literals)
     const parentFile = nodes[func.parentFileId] as FileNode | undefined;
-    if (parentFile) {
-      // Check top-level references (e.g., process.on('SIGTERM', shutdown))
-      if (parentFile.topLevelReferences?.includes(func.name)) {
-        continue;
-      }
-
-      // Check if any other function in the same file references this function
-      const siblingFunctions = functionsByFile.get(func.parentFileId) || [];
-      const isCalledBySibling = siblingFunctions.some(
-        (sibling) =>
-          sibling.id !== func.id && // Don't check self-references
-          sibling.references?.includes(func.name)
-      );
-      if (isCalledBySibling) continue;
+    if (parentFile?.topLevelReferences?.includes(func.name)) {
+      continue;
     }
 
-    // This function is likely orphaned
+    // This function has no incoming calls and isn't referenced at top level
     warnings.push({
       id: uuidv4(),
       category: WarningCategory.OrphanedCode,
       level: WarningLevel.Info,
       title: `Potentially unused function: ${func.name}`,
-      description: `The function "${func.name}" in ${func.filePath} is not exported and may not be called from anywhere. Consider removing it if unused, or export it if needed elsewhere.`,
+      description: `The function "${func.name}" in ${func.filePath} is not exported and has no incoming calls. Consider removing it if unused, or export it if needed elsewhere.`,
       affectedNodes: [func.id],
       suggestion: {
         summary: 'Remove if unused, or export if needed',
@@ -695,96 +669,6 @@ function findCycles(graph: Map<string, Set<string>>): string[][] {
   }
 
   return cycles;
-}
-
-/**
- * Resolve an import source to a file ID
- */
-function resolveImportToFileId(
-  source: string,
-  currentFilePath: string,
-  nodes: NodeMap,
-  pathAliases: PathAliases
-): string | null {
-  // First try to resolve path alias
-  const resolvedSource = resolvePathAlias(source, pathAliases);
-
-  // Skip external packages (those that don't start with . or / and weren't resolved by alias)
-  if (!resolvedSource.startsWith('.') && !resolvedSource.startsWith('/') && resolvedSource === source) {
-    return null;
-  }
-
-  const fileNodes = Object.values(nodes).filter(
-    (n): n is FileNode => n.type === NodeType.File
-  );
-
-  // Normalize the import path
-  const normalizedSource = normalizeImportSource(resolvedSource, currentFilePath);
-
-  // Try to find matching file
-  for (const file of fileNodes) {
-    const normalizedFile = normalizeFilePath(file.filePath);
-    if (normalizedFile === normalizedSource) {
-      return file.id;
-    }
-  }
-
-  return null;
-}
-
-/**
- * Normalize an import source relative to the importing file
- */
-function normalizeImportSource(source: string, importingFilePath: string): string {
-  if (!source.startsWith('.')) {
-    // Not a relative import - return as-is (already resolved by alias or absolute)
-    return source.replace(/\.(ts|tsx|js|jsx)$/, '');
-  }
-
-  // Get directory of importing file
-  const dir = importingFilePath.includes('/')
-    ? importingFilePath.substring(0, importingFilePath.lastIndexOf('/'))
-    : '';
-
-  // Resolve relative path
-  const parts = (dir ? dir + '/' + source : source).split('/');
-  const resolved: string[] = [];
-
-  for (const part of parts) {
-    if (part === '.' || part === '') continue;
-    if (part === '..') {
-      resolved.pop();
-    } else {
-      resolved.push(part);
-    }
-  }
-
-  return resolved.join('/').replace(/\.(ts|tsx|js|jsx)$/, '');
-}
-
-/**
- * Normalize a file path for comparison
- * Also returns the directory form for index files (e.g., src/components/ui/index -> src/components/ui)
- */
-function normalizeFilePath(filePath: string): string {
-  // Remove extension
-  return filePath.replace(/\.(ts|tsx|js|jsx)$/, '');
-}
-
-/**
- * Get both the full path and directory path for index files
- * Returns [normalPath, directoryPath] where directoryPath is null for non-index files
- */
-function getNormalizedPaths(filePath: string): [string, string | null] {
-  const normalized = normalizeFilePath(filePath);
-
-  // Check if this is an index file
-  if (normalized.endsWith('/index')) {
-    // Return both the full path and the directory path
-    return [normalized, normalized.slice(0, -6)]; // Remove '/index'
-  }
-
-  return [normalized, null];
 }
 
 /**

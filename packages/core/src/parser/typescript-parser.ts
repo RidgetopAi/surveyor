@@ -22,6 +22,7 @@ import { NodeType } from '../types/node.types.js';
 import { WarningLevel } from '../types/warning.types.js';
 import type { WarningDetectorOptions, PathAliases, ScanProgressCallback } from '../types/analyzer.types.js';
 import { detectWarnings, updateWarningStats } from '../analyzer/warning-detector.js';
+import { buildConnections } from '../analyzer/connection-builder.js';
 
 import { parseImports } from './parse-imports.js';
 import { parseExports } from './parse-exports.js';
@@ -240,12 +241,16 @@ async function findSourceFiles(projectPath: string): Promise<string[]> {
     '**/dist/**',
     '**/build/**',
     '**/.git/**',
+    '**/.next/**',
+    '**/.turbo/**',
+    '**/.vercel/**',
     '**/coverage/**',
     '**/*.test.ts',
     '**/*.test.tsx',
     '**/*.spec.ts',
     '**/*.spec.tsx',
     '**/*.d.ts',
+    '**/*.min.js',
   ];
 
   const files: string[] = [];
@@ -476,8 +481,21 @@ export async function scanProject(
     fileIndex++;
   }
 
+  // Read path aliases from tsconfig.json (needed by both connections and warnings)
+  const pathAliases = readPathAliases(absolutePath);
+  if (verbose && Object.keys(pathAliases).length > 0) {
+    console.log(`  Found path aliases: ${Object.keys(pathAliases).join(', ')}`);
+  }
+
+  // Build connection graph
+  const connections = buildConnections(nodes, pathAliases);
+  if (verbose) {
+    console.log(`  Built ${connections.length} connections`);
+  }
+
   // Calculate statistics
   const stats = calculateStats(nodes);
+  stats.totalConnections = connections.length;
 
   // Build final result
   const result: ScanResult = {
@@ -491,7 +509,7 @@ export async function scanProject(
     completedAt: new Date().toISOString(),
     stats,
     nodes,
-    connections: [], // Phase 2: Build connections from imports
+    connections,
     warnings: [],    // Populated below
     clusters: [],    // Phase 7: Build clusters
     errors,
@@ -501,12 +519,6 @@ export async function scanProject(
   if (!options.skipWarnings) {
     if (verbose) {
       console.log(`\nDetecting warnings...`);
-    }
-
-    // Read path aliases from tsconfig.json
-    const pathAliases = readPathAliases(absolutePath);
-    if (verbose && Object.keys(pathAliases).length > 0) {
-      console.log(`  Found path aliases: ${Object.keys(pathAliases).join(', ')}`);
     }
 
     // Merge path aliases with user-provided options
