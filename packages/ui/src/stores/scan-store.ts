@@ -46,6 +46,8 @@ export interface ScanActions {
   hoverNode: (nodeId: string | null) => void;
   setHighlightedNodes: (nodeIds: string[]) => void;
   drillInto: (folder: string) => void;
+  /** Drill into a folder and highlight the files in it that carry warnings. */
+  highlightFolderWarnings: (folder: string) => void;
   drillOut: () => void;
   drillToPath: (pathIndex: number) => void;
   setSearchQuery: (query: string) => void;
@@ -107,6 +109,27 @@ export const useScanStore = create<ScanStore>((set, get) => ({
       currentFolder: folder,
       navigationPath: [...navigationPath, folder],
       selectedNodeId: null, // Clear selection when drilling
+    });
+  },
+  highlightFolderWarnings: (folder) => {
+    const { currentScan, navigationPath } = get();
+    const fileIds = new Set<string>();
+    if (currentScan) {
+      for (const warning of currentScan.warnings) {
+        for (const nodeId of warning.affectedNodes) {
+          const node = currentScan.nodes[nodeId];
+          if (!node) continue;
+          const parts = node.filePath.split('/');
+          const nodeFolder = parts.length > 1 ? parts.slice(0, -1).join('/') : '.';
+          if (nodeFolder === folder) fileIds.add(nodeId);
+        }
+      }
+    }
+    set({
+      currentFolder: folder,
+      navigationPath: [...navigationPath, folder],
+      selectedNodeId: null,
+      highlightedNodeIds: Array.from(fileIds),
     });
   },
   drillOut: () => {

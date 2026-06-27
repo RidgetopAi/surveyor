@@ -5,6 +5,7 @@
 import { useState, useCallback } from 'react';
 import { useScanStore } from '../../stores/scan-store';
 import { ScanProgress } from '../overlays';
+import { SERVER_CONFIG } from '../../config';
 
 interface ScanPanelProps {
   isOpen: boolean;
@@ -12,7 +13,7 @@ interface ScanPanelProps {
   serverUrl?: string;
 }
 
-export function ScanPanel({ isOpen, onClose, serverUrl = 'http://localhost:4000' }: ScanPanelProps) {
+export function ScanPanel({ isOpen, onClose, serverUrl = SERVER_CONFIG.baseUrl }: ScanPanelProps) {
   const {
     setScan,
     scanProgress,

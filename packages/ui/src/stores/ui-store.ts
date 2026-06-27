@@ -3,10 +3,17 @@
  */
 
 import { create } from 'zustand';
+import type { ViewId } from '../config/view.config';
 
+/**
+ * The active canvas view. Values are the canonical `ViewId`s and are passed
+ * straight to `buildGraph` — the store IS the source of truth for which view
+ * strategy renders.
+ */
 export enum ViewMode {
-  Folder = 'folder',
-  Smart = 'smart',
+  FileStructure = 'file-structure',
+  Dependency = 'dependency',
+  DataFlow = 'data-flow',
 }
 
 export enum PanelState {
@@ -25,13 +32,18 @@ export interface UIState {
   zoomLevel: number;
   reducedMotion: boolean;
   warningPanelState: PanelState;
+  setViewMode: (mode: ViewMode) => void;
   setReducedMotion: (enabled: boolean) => void;
 }
 
+/** The active view as a `ViewId` (what `buildGraph` expects). */
+export const viewModeToId = (mode: ViewMode): ViewId => mode as ViewId;
+
 export const useUIStore = create<UIState>((set) => ({
-  viewMode: ViewMode.Folder,
+  viewMode: ViewMode.FileStructure,
   zoomLevel: 1,
   reducedMotion: getSystemReducedMotion(),
   warningPanelState: PanelState.Collapsed,
+  setViewMode: (mode) => set({ viewMode: mode }),
   setReducedMotion: (enabled) => set({ reducedMotion: enabled }),
 }));
