@@ -9,6 +9,7 @@
 import type { ScanResult, FileNode } from '@surveyor/core';
 import type { BuiltGraph, GraphEdge, GraphNode, NavState } from './types';
 import { NODE_TYPE, CONNECTION_TYPE } from '../config/contract';
+import { folderNodeId } from '../config/view.config';
 import { folderOf } from './graph-utils';
 import { layoutDagre, layoutGrid } from './layout';
 import { NODE_SIZE } from '../config/layout.config';
@@ -58,11 +59,11 @@ function warningCountsByFolder(scan: ScanResult): Map<string, number> {
 function buildRoot(scan: ScanResult): BuiltGraph {
   const groups = groupByFolder(fileNodesOf(scan));
   const warningCounts = warningCountsByFolder(scan);
-  const ids = groups.map((g) => `folder:${g.path}`);
+  const ids = groups.map((g) => folderNodeId(g.path));
   const positions = layoutGrid(ids, NODE_SIZE.folder);
 
   const nodes: GraphNode[] = groups.map((group) => {
-    const id = `folder:${group.path}`;
+    const id = folderNodeId(group.path);
     const functionCount = group.files.reduce((sum, f) => sum + f.functions.length, 0);
     return {
       id,

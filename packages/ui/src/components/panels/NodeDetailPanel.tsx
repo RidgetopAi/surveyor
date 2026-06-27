@@ -1,15 +1,48 @@
 /**
- * Panel showing details for selected node
- * Phase 3: Shows file name, path, functions, imports
- * Phase 4: Shows behavioral summaries and flags for functions
+ * Panel showing details for the selected node.
+ * - File node  → path, lines, functions (with behavioral badges), CLASSES,
+ *                imports, exports.
+ * - Folder node → aggregated summary card (files / functions / classes /
+ *                 warnings) with an explicit "Drill in" action.
  */
 
 import { useState } from 'react';
 import { useScanStore } from '../../stores/scan-store';
 import type { FileNode, FunctionNode, NodeType, BehavioralFlags } from '@surveyor/core';
+import { isFolderNodeId, folderPathFromNodeId } from '../../config/view.config';
+import { shapeFileClasses, type ClassCardData } from '../../lib/cards/file-classes';
+import { aggregateFolder } from '../../lib/cards/folder-summary';
 
 interface NodeDetailPanelProps {
   className?: string;
+}
+
+const PANEL_SHELL =
+  'w-80 bg-surface-2 border-l border-surface-3 flex flex-col overflow-hidden';
+
+function CloseButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="text-text-muted hover:text-text-primary transition-colors p-1"
+      aria-label="Close panel"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </button>
+  );
 }
 
 /**
@@ -44,7 +77,7 @@ async function openFileInEditor(
  * Right-side detail panel showing information about selected node
  */
 export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
-  const { selectedNodeId, currentScan, selectNode } = useScanStore();
+  const { selectedNodeId, currentScan, selectNode, drillInto } = useScanStore();
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const handleOpenFile = async (projectPath: string, filePath: string, line?: number) => {
@@ -61,6 +94,25 @@ export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
     return null;
   }
 
+  const handleClose = () => {
+    selectNode(null);
+  };
+
+  // Folder/group selection → aggregated summary card.
+  if (isFolderNodeId(selectedNodeId)) {
+    const folderPath = folderPathFromNodeId(selectedNodeId);
+    const summary = aggregateFolder(currentScan, folderPath);
+    return (
+      <FolderSummaryCard
+        className={className}
+        folderPath={folderPath}
+        summary={summary}
+        onClose={handleClose}
+        onDrillIn={() => drillInto(folderPath)}
+      />
+    );
+  }
+
   const node = currentScan.nodes[selectedNodeId];
   if (!node) {
     return null;
@@ -70,40 +122,17 @@ export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
   const isFileNode = (n: typeof node): n is FileNode => n.type === ('file' as NodeType);
 
   if (!isFileNode(node)) {
-    return null; // Phase 3 only handles file nodes
+    return null; // Only file + folder selections render a card
   }
 
-  const handleClose = () => {
-    selectNode(null);
-  };
+  const classes = shapeFileClasses(node, currentScan.nodes);
 
   return (
-    <div
-      className={`w-80 bg-surface-2 border-l border-surface-3 flex flex-col overflow-hidden ${className}`}
-    >
+    <div className={`${PANEL_SHELL} ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-surface-3">
         <h2 className="text-text-primary font-semibold truncate">{node.name}</h2>
-        <button
-          onClick={handleClose}
-          className="text-text-muted hover:text-text-primary transition-colors p-1"
-          aria-label="Close panel"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+        <CloseButton onClick={handleClose} />
       </div>
 
       {/* Content */}
@@ -197,6 +226,22 @@ export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
           )}
         </section>
 
+        {/* Classes */}
+        <section>
+          <h3 className="text-text-secondary text-xs uppercase tracking-wider mb-2">
+            Classes ({classes.length})
+          </h3>
+          {classes.length > 0 ? (
+            <ul className="space-y-3">
+              {classes.map((cls) => (
+                <ClassItem key={cls.id} cls={cls} />
+              ))}
+            </ul>
+          ) : (
+            <span className="text-text-muted text-sm italic">No classes</span>
+          )}
+        </section>
+
         {/* Imports */}
         <section>
           <h3 className="text-text-secondary text-xs uppercase tracking-wider mb-2">
@@ -255,6 +300,154 @@ export function NodeDetailPanel({ className = '' }: NodeDetailPanelProps) {
             <span className="text-text-muted text-sm italic">No exports</span>
           )}
         </section>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A single class entry: name + extends/implements + its methods.
+ * Mirrors the functions-section styling (surface-1 card, mono name, badges).
+ */
+function ClassItem({ cls }: { cls: ClassCardData }) {
+  return (
+    <li className="text-sm bg-surface-1 rounded p-2 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-mono text-text-primary">{cls.name}</span>
+        {cls.isExported && (
+          <span className="text-xs px-1.5 py-0.5 bg-accent-primary/20 text-accent-primary rounded">
+            export
+          </span>
+        )}
+      </div>
+
+      {/* Inheritance */}
+      {(cls.extends || cls.implements.length > 0) && (
+        <div className="flex flex-col gap-0.5 text-xs">
+          {cls.extends && (
+            <div className="text-text-secondary">
+              <span className="text-text-muted">extends</span>{' '}
+              <code className="font-mono text-accent-secondary">{cls.extends}</code>
+            </div>
+          )}
+          {cls.implements.length > 0 && (
+            <div className="text-text-secondary">
+              <span className="text-text-muted">implements</span>{' '}
+              <code className="font-mono text-accent-secondary">
+                {cls.implements.join(', ')}
+              </code>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Methods */}
+      <div>
+        <p className="text-text-muted text-xs mb-1">
+          Methods ({cls.methods.length})
+        </p>
+        {cls.methods.length > 0 ? (
+          <ul className="space-y-0.5">
+            {cls.methods.map((m) => (
+              <li key={m} className="text-text-secondary text-xs font-mono">
+                {m}()
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span className="text-text-muted text-xs italic">No methods</span>
+        )}
+      </div>
+    </li>
+  );
+}
+
+interface FolderSummaryCardProps {
+  className: string;
+  folderPath: string;
+  summary: ReturnType<typeof aggregateFolder>;
+  onClose: () => void;
+  onDrillIn: () => void;
+}
+
+/**
+ * Aggregated summary card for a selected folder/group node.
+ */
+function FolderSummaryCard({
+  className,
+  folderPath,
+  summary,
+  onClose,
+  onDrillIn,
+}: FolderSummaryCardProps) {
+  const name = folderPath.split('/').pop() || folderPath;
+  const stats: { label: string; value: number }[] = [
+    { label: 'Files', value: summary.fileCount },
+    { label: 'Functions', value: summary.functionCount },
+    { label: 'Classes', value: summary.classCount },
+    { label: 'Warnings', value: summary.warningCount },
+  ];
+
+  return (
+    <div className={`${PANEL_SHELL} ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-surface-3">
+        <div className="min-w-0">
+          <h2 className="text-text-primary font-semibold truncate">{name}</h2>
+          <p className="text-text-muted text-xs font-mono truncate">{folderPath}</p>
+        </div>
+        <CloseButton onClick={onClose} />
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <section>
+          <h3 className="text-text-secondary text-xs uppercase tracking-wider mb-2">
+            Summary
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            {stats.map((s) => (
+              <div key={s.label} className="bg-surface-1 rounded p-3">
+                <div className="text-text-primary text-2xl font-semibold">{s.value}</div>
+                <div className="text-text-muted text-xs uppercase tracking-wider">
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {summary.warningCount > 0 && (
+          <section>
+            <h3 className="text-text-secondary text-xs uppercase tracking-wider mb-2">
+              Warnings by level
+            </h3>
+            <div className="flex flex-wrap gap-2 text-xs">
+              {summary.warningsByLevel.error > 0 && (
+                <span className="px-2 py-0.5 rounded bg-status-error/20 text-status-error">
+                  {summary.warningsByLevel.error} error
+                </span>
+              )}
+              {summary.warningsByLevel.warning > 0 && (
+                <span className="px-2 py-0.5 rounded bg-status-warning/20 text-status-warning">
+                  {summary.warningsByLevel.warning} warning
+                </span>
+              )}
+              {summary.warningsByLevel.info > 0 && (
+                <span className="px-2 py-0.5 rounded bg-accent-primary/20 text-accent-primary">
+                  {summary.warningsByLevel.info} info
+                </span>
+              )}
+            </div>
+          </section>
+        )}
+
+        <button
+          onClick={onDrillIn}
+          className="w-full px-4 py-2 bg-accent-blue hover:bg-accent-blue/80 text-white rounded font-medium transition-colors"
+        >
+          Drill in
+        </button>
       </div>
     </div>
   );

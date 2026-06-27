@@ -193,18 +193,25 @@ function CanvasInner({ scanData }: CanvasProps) {
     });
   }, [nodes, hoveredNodeId, connectedNodeIds, searchQuery, matchesSearch, highlightedNodeIds]);
 
+  // Single click selects ANY node (file or folder) → opens its detail/summary
+  // card. Folders no longer drill on a single click; drill-in is the
+  // double-click action below (the card also offers an explicit "Drill in").
   const onNodeClick = useCallback(
     (_event: React.MouseEvent, node: Node) => {
-      // Folder nodes drill in; everything else selects. Generic — the view
-      // decides node.type, Canvas just reacts to it.
+      selectNode(node.id);
+    },
+    [selectNode]
+  );
+
+  // Double click on a folder drills into it (keeps the original drilldown flow).
+  const onNodeDoubleClick = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
       if (node.type === 'folder') {
         const folderPath = (node.data as { folderPath: string }).folderPath;
         drillInto(folderPath);
-      } else {
-        selectNode(node.id);
       }
     },
-    [selectNode, drillInto]
+    [drillInto]
   );
 
   const onNodeMouseEnter: NodeMouseHandler = useCallback(
@@ -228,6 +235,7 @@ function CanvasInner({ scanData }: CanvasProps) {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={onNodeClick}
+      onNodeDoubleClick={onNodeDoubleClick}
       onNodeMouseEnter={onNodeMouseEnter}
       onNodeMouseLeave={onNodeMouseLeave}
       nodeTypes={nodeTypes}

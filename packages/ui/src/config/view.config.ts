@@ -38,6 +38,18 @@ export const VIEWS: ViewDefinition[] = [
   },
 ];
 
+/**
+ * Synthetic folder/group nodes in the file-structure view are id'd
+ * `folder:<path>`. Centralized here so the view that mints them, the Canvas that
+ * routes clicks, and the detail panel that resolves a selected folder all agree
+ * (no drifting magic strings).
+ */
+export const FOLDER_NODE_PREFIX = 'folder:';
+export const folderNodeId = (path: string): string => `${FOLDER_NODE_PREFIX}${path}`;
+export const isFolderNodeId = (id: string): boolean => id.startsWith(FOLDER_NODE_PREFIX);
+export const folderPathFromNodeId = (id: string): string =>
+  id.slice(FOLDER_NODE_PREFIX.length);
+
 /** Edge stroke colors (shared by all views; applied generically by Canvas). */
 export const EDGE_COLORS = {
   normal: COLORS.connection.normal,
