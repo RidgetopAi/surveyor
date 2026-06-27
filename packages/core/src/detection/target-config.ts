@@ -11,10 +11,19 @@
  *     workspaces lets knip apply its per-workspace entry-point detection and
  *     framework plugins, which is where its accuracy comes from.
  *
- *   - ENTRIES: intentionally left to knip's own detection (package.json
- *     main/bin/exports + scripts + framework plugins + test runners). Hand-rolling
- *     entry globs was measurably WORSE — it overrode knip's smart defaults and
- *     re-introduced false positives (test files flagged as unused).
+ *   - ENTRIES: knip's per-workspace default entry (`{index,cli,main}`) is the
+ *     baseline. We EXTEND it (never replace it — knip replaces, not merges, a
+ *     workspace `entry`, which was the earlier regression) with globs for one-off
+ *     scripts, bin tools and config files (`config.knip.extraEntry`), always
+ *     re-including the replicated knip defaults (`config.knip.defaultEntry`).
+ *
+ *   - TEST FILES: knip only auto-enables a test-runner plugin (which registers
+ *     `*.test.*` as entries, so test files aren't "unused" and their imports
+ *     count as usage) when the runner is a DIRECT dependency. Repos that run
+ *     tests indirectly — CRA/react-scripts, craco → jest — never trip that, so we
+ *     FORCE-ENABLE the jest/vitest plugins (`config.knip.forceEnablePlugins`) for
+ *     every workspace via top-level plugin keys (knip propagates root plugin
+ *     configs to all workspaces).
  *
  *   - DEP-CRUISER TARGETS: the concrete source directories to cruise, derived from
  *     each workspace's conventional source roots.
@@ -90,24 +99,45 @@ export function deriveKnipConfig(
   const workspaces = discoverWorkspaces(projectPath);
   const ignore = [...config.sharedIgnore, ...config.knip.ignore];
 
+  // Entry set applied to EVERY workspace: knip's replicated defaults (so index/
+  // main detection survives) PLUS our extras (scripts/bin/config one-offs). knip
+  // REPLACES a workspace `entry`, so defaultEntry MUST be included or the whole
+  // tree is flagged unused.
+  const entry = [...config.knip.defaultEntry, ...config.knip.extraEntry];
+
+  // Force-enable test-runner plugins (jest/vitest) so test files are entries —
+  // and their imports count as usage — even when the runner is wired indirectly
+  // (CRA/react-scripts → jest). Set as TOP-LEVEL plugin keys: knip propagates
+  // root plugin configs to every workspace. A truthy ({}) value short-circuits
+  // the plugin's auto-detect (isEnabled) check and force-enables it.
+  const forcedPlugins: Record<string, Record<string, unknown>> = {};
+  for (const name of config.knip.forceEnablePlugins) {
+    forcedPlugins[name] = {};
+  }
+
   const knipConfig: Record<string, unknown> = {
     // Surface entry-file exports as used (framework conventions) unless overridden.
     includeEntryExports: config.knip.includeEntryExports,
     ignore,
+    ...forcedPlugins,
   };
 
   // Only declare a workspaces map for a genuine multi-package layout. For a
   // single-package repo, knip's default single-project handling is correct and
-  // declaring `{ ".": {} }` would suppress its root auto-detection.
+  // declaring `{ ".": {} }` would suppress its root auto-detection — there the
+  // top-level config IS the root-workspace config, so `entry` goes top-level.
   const nonRoot = workspaces.filter((w) => w !== '.');
   if (nonRoot.length > 0) {
     const wsMap: Record<string, Record<string, unknown>> = {};
     for (const ws of workspaces) {
-      // Empty per-workspace config => let knip apply its full default entry +
-      // plugin detection for that workspace (proven most accurate).
-      wsMap[ws] = {};
+      // Per-workspace: extend entry (knip defaults + scripts/bin/config). Plugins
+      // are force-enabled globally via the top-level keys above; knip's project
+      // pattern and per-workspace plugin auto-detection stay at their defaults.
+      wsMap[ws] = { entry };
     }
     knipConfig.workspaces = wsMap;
+  } else {
+    knipConfig.entry = entry;
   }
 
   return knipConfig;

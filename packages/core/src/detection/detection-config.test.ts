@@ -19,8 +19,38 @@ describe('resolveDetectionConfig', () => {
     const cfg = resolveDetectionConfig();
     cfg.knip.issueTypes.push('enumMembers');
     cfg.sharedIgnore.push('x');
+    cfg.knip.defaultEntry.push('boom');
+    cfg.knip.extraEntry.push('boom');
+    cfg.knip.forceEnablePlugins.push('boom');
     expect(DEFAULT_DETECTION_CONFIG.knip.issueTypes).toEqual(['files', 'exports', 'types']);
     expect(DEFAULT_SHARED_IGNORE).not.toContain('x');
+    expect(DEFAULT_DETECTION_CONFIG.knip.defaultEntry).not.toContain('boom');
+    expect(DEFAULT_DETECTION_CONFIG.knip.extraEntry).not.toContain('boom');
+    expect(DEFAULT_DETECTION_CONFIG.knip.forceEnablePlugins).not.toContain('boom');
+  });
+
+  it('ships entry/plugin defaults that fix the test + script false positives', () => {
+    const cfg = resolveDetectionConfig();
+    // knip's index/main defaults are preserved so we can extend, not replace.
+    expect(cfg.knip.defaultEntry).toContain('{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}');
+    expect(cfg.knip.defaultEntry).toContain(
+      'src/{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}'
+    );
+    // one-off scripts (any depth) are entries
+    expect(cfg.knip.extraEntry).toContain('**/scripts/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}');
+    // test-runner plugins force-enabled (CRA/react-scripts wires jest indirectly)
+    expect(cfg.knip.forceEnablePlugins).toEqual(['jest', 'vitest']);
+  });
+
+  it('allows overriding the entry/plugin tunables', () => {
+    const cfg = resolveDetectionConfig({
+      knip: { extraEntry: ['custom/**'], forceEnablePlugins: ['vitest'] },
+    });
+    expect(cfg.knip.extraEntry).toEqual(['custom/**']);
+    expect(cfg.knip.forceEnablePlugins).toEqual(['vitest']);
+    // unrelated knip defaults preserved
+    expect(cfg.knip.defaultEntry.length).toBeGreaterThan(0);
+    expect(cfg.knip.includeEntryExports).toBe(false);
   });
 
   it('deep-merges nested engine overrides without dropping siblings', () => {

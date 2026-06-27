@@ -39,12 +39,60 @@ describe('deriveKnipConfig', () => {
     expect(Array.isArray(cfg.ignore)).toBe(true);
   });
 
-  it('declares an (empty-config) workspaces map for a multi-package repo', () => {
+  it('puts the extended entry set TOP-LEVEL for a single-package repo', () => {
+    // The top-level config IS the root-workspace config in knip when there is no
+    // workspaces map, so `entry` (defaults + extras) must live top-level there.
+    const cfg = deriveKnipConfig(SAMPLE, config);
+    const entry = cfg.entry as string[];
+    expect(entry).toEqual([...config.knip.defaultEntry, ...config.knip.extraEntry]);
+  });
+
+  it('declares a per-workspace entry map for a multi-package repo', () => {
     const cfg = deriveKnipConfig(MULTI, config);
-    const wsMap = cfg.workspaces as Record<string, unknown>;
+    const wsMap = cfg.workspaces as Record<string, { entry: string[] }>;
     expect(wsMap).toBeDefined();
-    expect(wsMap['packages/core']).toEqual({});
-    expect(wsMap['packages/ui']).toEqual({});
+    const expectedEntry = [...config.knip.defaultEntry, ...config.knip.extraEntry];
+    // Every workspace (incl. the root '.') carries the extended entry set.
+    expect(wsMap['.'].entry).toEqual(expectedEntry);
+    expect(wsMap['packages/core'].entry).toEqual(expectedEntry);
+    expect(wsMap['packages/ui'].entry).toEqual(expectedEntry);
+  });
+
+  it('PRESERVES knip default entry when extending (no replace-regression)', () => {
+    // Regression guard: knip REPLACES a workspace `entry`, so the index/main
+    // defaults must always be present or knip flags the whole tree as unused.
+    const cfg = deriveKnipConfig(MULTI, config);
+    const wsMap = cfg.workspaces as Record<string, { entry: string[] }>;
+    for (const def of config.knip.defaultEntry) {
+      expect(wsMap['packages/core'].entry).toContain(def);
+    }
+    // and the script/config extras are appended, not substituted
+    expect(wsMap['packages/core'].entry).toContain(
+      '**/scripts/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}'
+    );
+  });
+
+  it('FORCE-ENABLES test-runner plugins at the top level (CRA/react-scripts gap)', () => {
+    // knip only auto-enables jest/vitest when the runner is a DIRECT dep; a
+    // truthy top-level plugin key force-enables it for every workspace so test
+    // files become entries (and their imports count as usage).
+    const cfg = deriveKnipConfig(MULTI, config);
+    for (const plugin of config.knip.forceEnablePlugins) {
+      expect(cfg[plugin]).toEqual({});
+    }
+    expect(cfg.jest).toEqual({});
+    expect(cfg.vitest).toEqual({});
+  });
+
+  it('honours a custom forceEnablePlugins / extraEntry override', () => {
+    const cfg = resolveDetectionConfig({
+      knip: { forceEnablePlugins: ['mocha'], extraEntry: ['tools/**/*.ts'] },
+    });
+    const out = deriveKnipConfig(MULTI, cfg);
+    expect(out.mocha).toEqual({});
+    expect(out.jest).toBeUndefined();
+    const wsMap = out.workspaces as Record<string, { entry: string[] }>;
+    expect(wsMap['packages/core'].entry).toContain('tools/**/*.ts');
   });
 
   it('merges shared + knip-specific ignore globs', () => {

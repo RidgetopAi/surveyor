@@ -49,6 +49,38 @@ export interface KnipEngineConfig {
    * findings) — opt in only when hunting truly-everything.
    */
   includeEntryExports: boolean;
+  /**
+   * knip's OWN default per-workspace entry globs, replicated here so Surveyor can
+   * EXTEND a workspace's entry set (adding scripts/bin/config one-offs) WITHOUT
+   * losing knip's index/main detection. knip REPLACES — does not merge — a
+   * workspace `entry` (ConfigurationChief.getConfigForWorkspace), so anything we
+   * add must re-include these or the entire tree gets flagged unused. Kept in
+   * config (not hardcoded in the adapter) so a knip-default change is a one-line
+   * edit. Source: knip getDefaultWorkspaceConfig (v6.22).
+   */
+  defaultEntry: string[];
+  /**
+   * Extra entry globs added to EVERY workspace so one-off scripts, bin tools and
+   * standalone config files are treated as ENTRY points — i.e. not reported as
+   * "unused files", and (critically) their imports COUNT as usage, so a helper
+   * imported only by a script/config isn't a false "unused export". Applied
+   * per-workspace, so globs are workspace-relative (`**​/` reaches nested dirs
+   * like `src/scripts`).
+   */
+  extraEntry: string[];
+  /**
+   * knip plugin names to FORCE-ENABLE for every workspace. knip only
+   * auto-enables a test-runner plugin (which is what registers `*.test.*` as
+   * entries) when that runner is a DIRECT dependency. Repos that run tests
+   * indirectly — CRA/react-scripts and craco both shell out to jest — never trip
+   * that check, so their test files are mis-flagged as unused AND their imports
+   * are not counted (inflating unused exports). Force-enabling the jest/vitest
+   * plugins registers the standard test-entry globs regardless of how the runner
+   * is wired. A plugin is force-enabled by giving it a (truthy) config object —
+   * knip's WorkspaceWorker.determineEnabledPlugins short-circuits its isEnabled
+   * check. Harmless where a workspace has no tests.
+   */
+  forceEnablePlugins: string[];
   /** Subprocess wall-clock timeout (ms). */
   timeoutMs: number;
 }
@@ -132,6 +164,36 @@ export const DEFAULT_SHARED_IGNORE: readonly string[] = [
   '**/__fixtures__/**',
 ];
 
+/**
+ * knip's own default per-workspace entry globs (index/cli/main at root and under
+ * `src/`). Replicated so we can EXTEND a workspace's entry without losing them —
+ * knip replaces, not merges, a workspace `entry`. Mirror of knip v6.22
+ * getDefaultWorkspaceConfig over DEFAULT_EXTENSIONS.
+ */
+export const DEFAULT_KNIP_ENTRY: readonly string[] = [
+  '{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+  'src/{index,cli,main}.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+];
+
+/**
+ * Extra entry globs so one-off scripts, bin tools and standalone config files
+ * are treated as entries (not "unused files") and their imports count as usage.
+ * Workspace-relative; `**​/` reaches nested dirs (e.g. `src/scripts`).
+ */
+export const DEFAULT_KNIP_EXTRA_ENTRY: readonly string[] = [
+  '**/scripts/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+  'bin/**/*.{js,mjs,cjs,ts,mts,cts}',
+  '*.config.{js,mjs,cjs,ts,mts,cts}',
+  '**/*.config.{js,mjs,cjs,ts,mts,cts}',
+];
+
+/**
+ * Test-runner plugins force-enabled per workspace so test files are entries (and
+ * their imports count as usage) even when the runner is wired indirectly
+ * (CRA/react-scripts, craco → jest).
+ */
+export const DEFAULT_KNIP_FORCE_ENABLE_PLUGINS: readonly string[] = ['jest', 'vitest'];
+
 export const DEFAULT_DETECTION_CONFIG: DetectionConfig = {
   mode: 'app',
   knip: {
@@ -139,6 +201,9 @@ export const DEFAULT_DETECTION_CONFIG: DetectionConfig = {
     issueTypes: ['files', 'exports', 'types'],
     ignore: [],
     includeEntryExports: false,
+    defaultEntry: [...DEFAULT_KNIP_ENTRY],
+    extraEntry: [...DEFAULT_KNIP_EXTRA_ENTRY],
+    forceEnablePlugins: [...DEFAULT_KNIP_FORCE_ENABLE_PLUGINS],
     timeoutMs: 300_000,
   },
   dependencyCruiser: {
@@ -202,6 +267,10 @@ export function resolveDetectionConfig(override: DetectionConfigOverride = {}): 
       ...override.knip,
       issueTypes: [...issueTypes],
       ignore: override.knip?.ignore ?? [...base.knip.ignore],
+      defaultEntry: override.knip?.defaultEntry ?? [...base.knip.defaultEntry],
+      extraEntry: override.knip?.extraEntry ?? [...base.knip.extraEntry],
+      forceEnablePlugins:
+        override.knip?.forceEnablePlugins ?? [...base.knip.forceEnablePlugins],
     },
     dependencyCruiser: { ...base.dependencyCruiser, ...override.dependencyCruiser },
     confidence: { ...base.confidence, ...override.confidence },
