@@ -14,12 +14,6 @@ export {
   pruneCache,
   getCacheStats,
 } from './analysis-cache.js';
-export {
-  analyzeBehaviorBrowser,
-  createBrowserLLMClient,
-  type BrowserAnalyzeOptions,
-  type SimpleLLMClient,
-} from './browser-analyzer.js';
 export { buildConnections } from './connection-builder.js';
 export { detectWarnings, updateWarningStats } from './warning-detector.js';
 export { scanTestFileImports } from './scan-test-imports.js';

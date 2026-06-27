@@ -14,15 +14,15 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.0",
+    "@hono/node-server": "^2.0.6",
     "@surveyor/core": "workspace:*",
-    "dotenv": "^16.4.0",
-    "hono": "^4.6.0"
+    "dotenv": "^16.6.1",
+    "hono": "^4.12.27",
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@types/uuid": "^10.0.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.6.0"
+    "@types/node": "^22.20.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
   }
 }

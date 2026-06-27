@@ -202,17 +202,17 @@ Developers who:
 ### 1. CLI (Primary Interface for v1)
 
 ```bash
-# Basic crawl
-surveyor crawl ./src
+# Basic scan
+surveyor scan ./src
 
 # Output to specific location
-surveyor crawl ./src --output ./reports/
+surveyor scan ./src --output ./reports/
 
-# Watch mode (re-crawl on changes)
-surveyor crawl ./src --watch
+# Watch mode (re-scan on changes) — planned, not yet implemented
+surveyor scan ./src --watch
 
-# Specific language override
-surveyor crawl ./src --lang typescript
+# Specific language override — planned, not yet implemented
+surveyor scan ./src --lang typescript
 ```
 
 ### 2. API Endpoint (For Mandrel Integration)
@@ -306,7 +306,7 @@ Returns data formatted for React Flow rendering
 - [ ] TypeScript/JavaScript parsing via ts-morph
 - [ ] Layer 1: Full structural mapping (imports, exports, functions, classes)
 - [ ] Layer 2: Behavioral summaries via Grok 4.1 Fast API
-- [ ] CLI interface: `surveyor crawl <path>`
+- [ ] CLI interface: `surveyor scan <path>`
 - [ ] JSON output to file
 - [ ] Basic React Flow visualization (file-level graph)
 - [ ] Click-to-expand: file → functions
@@ -329,7 +329,7 @@ Returns data formatted for React Flow rendering
 
 **V1 is done when:**
 
-1. Running `surveyor crawl ./src` on Squire produces a complete structural map
+1. Running `surveyor scan ./src` on Squire produces a complete structural map
 2. Every function has a one-line behavioral summary
 3. The React Flow visualization renders and is navigable
 4. Brian can look at the output and answer: "Is my architecture clean?"
