@@ -19,10 +19,19 @@ import {
   type ScanProgress,
 } from '@surveyor/core';
 
+type ScanRunOptions = {
+  skipAnalysis?: boolean;
+  outputDir?: string;
+  /** Disable the detection engines (knip + dependency-cruiser). Default: enabled. */
+  detect?: boolean;
+  /** Detection mode: 'app' (default) or 'library'. */
+  mode?: 'app' | 'library';
+};
+
 // Store pending scans (config only, waiting for SSE connect to start)
 const pendingScans = new Map<string, {
   projectPath: string;
-  options: { skipAnalysis?: boolean; outputDir?: string };
+  options: ScanRunOptions;
 }>();
 
 // Store active scans for progress tracking
@@ -39,12 +48,17 @@ const activeScans = new Map<string, {
 async function runScan(
   scanId: string,
   projectPath: string,
-  options: { skipAnalysis?: boolean; outputDir?: string },
+  options: ScanRunOptions,
 ) {
   try {
+    // Detection engines on by default (trustworthy analysis); opt out with detect:false.
+    const detectionMode: 'app' | 'library' = options.mode === 'library' ? 'library' : 'app';
+    const enableDetection = options.detect !== false;
+
     // Run the scan with progress callback
     let result = await scanProject(projectPath, {
       verbose: false,
+      ...(enableDetection ? { detection: { mode: detectionMode } } : {}),
       onProgress: (progress) => {
         activeScans.set(scanId, { progress });
         if (progress.current % 10 === 0 || progress.current === progress.total) {
@@ -131,10 +145,7 @@ export const scanRoutes = new Hono();
 scanRoutes.post('/', async (c) => {
   const body = await c.req.json<{
     projectPath: string;
-    options?: {
-      skipAnalysis?: boolean;
-      outputDir?: string;
-    };
+    options?: ScanRunOptions;
   }>();
 
   const { projectPath, options = {} } = body;

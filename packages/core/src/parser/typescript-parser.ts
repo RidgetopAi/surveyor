@@ -23,6 +23,8 @@ import { WarningLevel } from '../types/warning.types.js';
 import type { WarningDetectorOptions, PathAliases, ScanProgressCallback } from '../types/analyzer.types.js';
 import { detectWarnings, updateWarningStats } from '../analyzer/warning-detector.js';
 import { buildConnections } from '../analyzer/connection-builder.js';
+import { runExternalDetection } from '../detection/index.js';
+import type { DetectionConfigOverride } from '../detection/index.js';
 
 import { parseImports } from './parse-imports.js';
 import { parseExports } from './parse-exports.js';
@@ -38,6 +40,16 @@ export interface ScanOptions {
   warningOptions?: WarningDetectorOptions;
   /** Progress callback for real-time updates during scanning */
   onProgress?: ScanProgressCallback;
+  /**
+   * Enable external detection engines (knip + dependency-cruiser) and merge their
+   * findings into `warnings`. Presence enables it; omit to run only the in-process
+   * detectors (keeps unit tests on fixtures fast and offline). Pass `{}` for the
+   * product defaults, or override the mode / engines / thresholds.
+   *
+   * Requires the target to be an installable repo (has package.json); engines run
+   * best-effort and any failure is recorded in `errors` rather than aborting.
+   */
+  detection?: DetectionConfigOverride;
 }
 
 /**
@@ -534,7 +546,33 @@ export async function scanProject(
     updateWarningStats(result);
 
     if (verbose) {
-      console.log(`  Found ${result.warnings.length} warnings`);
+      console.log(`  Found ${result.warnings.length} in-process warnings (large_file)`);
+    }
+
+    // External detection engines (knip + dependency-cruiser) — trustworthy
+    // problem-flagging. Best-effort: a failing engine is recorded, not fatal.
+    if (options.detection) {
+      if (verbose) {
+        console.log(`\nRunning detection engines (knip + dependency-cruiser)...`);
+      }
+      const external = await runExternalDetection(absolutePath, nodes, options.detection);
+      result.warnings.push(...external.warnings);
+      for (const engErr of external.engineErrors) {
+        errors.push({
+          filePath: '.',
+          line: null,
+          message: `Detection engine "${engErr.engine}" failed: ${engErr.message}`,
+          recoverable: true,
+        });
+      }
+      updateWarningStats(result);
+
+      if (verbose) {
+        console.log(
+          `  Detection engines added ${external.warnings.length} warnings` +
+            (external.engineErrors.length ? ` (${external.engineErrors.length} engine error(s))` : '')
+        );
+      }
     }
   }
 

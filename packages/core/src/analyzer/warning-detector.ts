@@ -1,17 +1,30 @@
 /**
- * Warning detector - analyzes scan results for potential issues
+ * Warning detector - Surveyor's in-process detectors.
  *
- * Detects:
- * - Circular dependencies (file and function level)
- * - Orphaned code (unreferenced functions)
- * - Unused exports
- * - Large files
+ * As of Phase 1 (trustworthy analysis) only `large_file` runs by default; the
+ * circular / orphaned / unused-export detectors here are RETIRED from the default
+ * path (DEFAULT_WARNING_OPTIONS turns them off) in favour of knip +
+ * dependency-cruiser (see src/detection). They remain available behind explicit
+ * options for the characterization tests and FP comparison.
  */
 
 import { v4 as uuidv4 } from 'uuid';
 import type { ScanResult, NodeMap, FileNode, FunctionNode } from '../types/index.js';
 import type { Warning } from '../types/warning.types.js';
-import { WarningLevel, WarningCategory } from '../types/warning.types.js';
+import { WarningLevel, WarningCategory, WarningSource } from '../types/warning.types.js';
+import { DEFAULT_DETECTION_CONFIG } from '../detection/detection-config.js';
+
+/**
+ * Confidence/dismissibility for the RETIRED, opt-in legacy detectors. These are
+ * not in the product default path; the low confidence reflects their measured
+ * unreliability on real code. Kept as named config, not inline magic numbers.
+ */
+const LEGACY_DETECTOR = {
+  fileCircular: { confidence: 0.7, dismissible: true },
+  functionCircular: { confidence: 0.6, dismissible: true },
+  orphaned: { confidence: 0.3, dismissible: true },
+  unusedExport: { confidence: 0.4, dismissible: true },
+} as const;
 import { NodeType } from '../types/node.types.js';
 import type { Connection } from '../types/connection.types.js';
 import { ConnectionType } from '../types/connection.types.js';
@@ -192,6 +205,9 @@ function detectFileCircularDependencies(
         autoFixable: false,
       },
       detectedAt,
+      source: WarningSource.Surveyor,
+      confidence: LEGACY_DETECTOR.fileCircular.confidence,
+      dismissible: LEGACY_DETECTOR.fileCircular.dismissible,
     });
   }
 
@@ -245,6 +261,9 @@ function detectFunctionCircularDependencies(
         autoFixable: false,
       },
       detectedAt,
+      source: WarningSource.Surveyor,
+      confidence: LEGACY_DETECTOR.functionCircular.confidence,
+      dismissible: LEGACY_DETECTOR.functionCircular.dismissible,
     });
   }
 
@@ -333,6 +352,9 @@ function detectOrphanedCode(
         autoFixable: false,
       },
       detectedAt,
+      source: WarningSource.Surveyor,
+      confidence: LEGACY_DETECTOR.orphaned.confidence,
+      dismissible: LEGACY_DETECTOR.orphaned.dismissible,
     });
   }
 
@@ -574,6 +596,9 @@ async function detectUnusedExports(
             autoFixable: false,
           },
           detectedAt,
+          source: WarningSource.Surveyor,
+          confidence: LEGACY_DETECTOR.unusedExport.confidence,
+          dismissible: LEGACY_DETECTOR.unusedExport.dismissible,
         });
       }
     }
@@ -618,6 +643,9 @@ function detectLargeFiles(
           autoFixable: false,
         },
         detectedAt,
+        source: WarningSource.Surveyor,
+        confidence: DEFAULT_DETECTION_CONFIG.confidence.largeFile,
+        dismissible: DEFAULT_DETECTION_CONFIG.dismissible.largeFile,
       });
     }
   }
