@@ -3,7 +3,6 @@
  */
 
 export { analyzeBehavior, analyzeSingleFunction, type AnalyzeOptions } from './behavioral-analyzer.js';
-export { LLMClient, createLLMClientFromEnv } from './llm-client.js';
 export {
   loadCache,
   saveCache,

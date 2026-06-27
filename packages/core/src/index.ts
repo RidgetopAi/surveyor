@@ -17,5 +17,8 @@ export * from './resolver/index.js';
 // Analyzer
 export * from './analyzer/index.js';
 
+// LLM provider seam (pluggable AI: Anthropic default, OpenAI-compatible incl. Ollama)
+export * from './llm/index.js';
+
 // Detection engines (knip + dependency-cruiser → Warning model)
 export * from './detection/index.js';

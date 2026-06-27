@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import type { ScanResult, FunctionNode, SummarySource } from '../types/index.js';
 import type { AnalysisProgressCallback, AnalysisCache } from '../types/analyzer.types.js';
 import { NodeType } from '../types/node.types.js';
-import { LLMClient } from './llm-client.js';
+import type { LLMProvider } from '../llm/provider.js';
 import {
   loadCache,
   saveCache,
@@ -28,8 +28,6 @@ export interface AnalyzeOptions {
   maxFunctions?: number;
   /** Directory to store cache (default: .surveyor in project) */
   cacheDir?: string;
-  /** Model name for cache tracking */
-  model?: string;
   /** Number of concurrent LLM requests (default: 5) */
   concurrency?: number;
 }
@@ -85,7 +83,7 @@ function extractFunctionCode(
  */
 export async function analyzeBehavior(
   scanResult: ScanResult,
-  client: LLMClient,
+  provider: LLMProvider,
   options: AnalyzeOptions = {}
 ): Promise<ScanResult> {
   const {
@@ -93,9 +91,13 @@ export async function analyzeBehavior(
     skipAnalyzed = true,
     maxFunctions,
     cacheDir,
-    model = 'unknown',
     concurrency = 5,
   } = options;
+
+  // The cache is keyed on the active provider + model so a backend/model swap
+  // invalidates summaries produced by the previous one.
+  const providerName = provider.name;
+  const model = provider.model;
 
   // Load or create cache
   let cache: AnalysisCache | null = null;
@@ -147,7 +149,7 @@ export async function analyzeBehavior(
 
       // Check cache first
       if (cache) {
-        const cachedResult = getCachedResult(cache, funcNode.id, contentHash);
+        const cachedResult = getCachedResult(cache, funcNode.id, contentHash, providerName, model);
         if (cachedResult) {
           funcNode.behavioral = {
             summary: cachedResult.summary,
@@ -183,12 +185,12 @@ export async function analyzeBehavior(
       }
 
       try {
-        // Call LLM for analysis
-        const result = await client.analyzeFunction(
-          funcNode.name,
-          code,
-          funcNode.filePath
-        );
+        // Call the provider for analysis
+        const result = await provider.describeFunction({
+          functionName: funcNode.name,
+          functionCode: code,
+          filePath: funcNode.filePath,
+        });
 
         funcNode.behavioral = {
           summary: result.summary,
@@ -198,7 +200,7 @@ export async function analyzeBehavior(
         };
 
         if (cache) {
-          setCachedResult(cache, funcNode.id, contentHash, result, model);
+          setCachedResult(cache, funcNode.id, contentHash, result, providerName, model);
         }
 
         analyzedCount++;
@@ -230,7 +232,7 @@ export async function analyzeBehavior(
  */
 export async function analyzeSingleFunction(
   funcNode: FunctionNode,
-  client: LLMClient
+  provider: LLMProvider
 ): Promise<FunctionNode> {
   const code = extractFunctionCode(
     funcNode.filePath,
@@ -242,11 +244,11 @@ export async function analyzeSingleFunction(
     throw new Error(`Could not extract code for ${funcNode.name}`);
   }
 
-  const result = await client.analyzeFunction(
-    funcNode.name,
-    code,
-    funcNode.filePath
-  );
+  const result = await provider.describeFunction({
+    functionName: funcNode.name,
+    functionCode: code,
+    filePath: funcNode.filePath,
+  });
 
   funcNode.behavioral = {
     summary: result.summary,

@@ -14,7 +14,9 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   scanProject,
   analyzeBehavior,
-  createLLMClientFromEnv,
+  loadLLMConfigFromEnv,
+  isProviderConfigured,
+  createProvider,
   type ScanResult,
   type ScanProgress,
 } from '@surveyor/core';
@@ -72,22 +74,25 @@ async function runScan(
 
     console.log(`[scan] Parsed ${result.stats.totalFiles} files, ${result.stats.totalFunctions} functions`);
 
-    // Run behavioral analysis if not skipped and API key available
-    const skipAnalysis = options.skipAnalysis ?? !process.env.SURVEYOR_LLM_API_KEY;
+    // Run behavioral analysis if not skipped and a provider is configured.
+    // Provider/model/concurrency all come from the named LLM config (env-driven);
+    // swapping provider=anthropic ↔ openai-compatible is purely config.
+    const llmConfig = loadLLMConfigFromEnv();
+    const skipAnalysis = options.skipAnalysis ?? !isProviderConfigured(llmConfig);
 
-    if (!skipAnalysis && process.env.SURVEYOR_LLM_API_KEY) {
+    if (!skipAnalysis && isProviderConfigured(llmConfig)) {
       try {
         activeScans.set(scanId, {
           progress: { phase: 'analyzing', current: 0, total: result.stats.totalFunctions },
         });
 
-        const client = createLLMClientFromEnv();
+        const provider = createProvider(llmConfig);
         const outputDir = options.outputDir || path.join(projectPath, '.surveyor');
 
-        const concurrency = parseInt(process.env.SURVEYOR_LLM_CONCURRENCY || '10', 10);
-        console.log(`[analyze] Starting with concurrency=${concurrency}`);
+        const concurrency = llmConfig.concurrency;
+        console.log(`[analyze] Starting with provider=${provider.name} model=${provider.model} concurrency=${concurrency}`);
 
-        result = await analyzeBehavior(result, client, {
+        result = await analyzeBehavior(result, provider, {
           onProgress: (analysisProgress) => {
             activeScans.set(scanId, {
               progress: {
@@ -102,7 +107,6 @@ async function runScan(
             console.log(`[analyze] ${analysisProgress.current}/${analysisProgress.total}: ${analysisProgress.functionName}`);
           },
           cacheDir: outputDir,
-          model: process.env.SURVEYOR_LLM_MODEL || 'grok-4-1-fast-reasoning',
           concurrency,
         });
       } catch (analyzeErr) {

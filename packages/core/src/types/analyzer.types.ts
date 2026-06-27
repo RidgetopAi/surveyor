@@ -4,36 +4,10 @@
 
 import type { BehavioralFlags } from './node.types.js';
 
-/**
- * Configuration for the LLM analyzer
- */
-export interface AnalyzerConfig {
-  /** API endpoint URL (OpenAI-compatible) */
-  endpoint: string;
-  /** API key for authentication */
-  apiKey: string;
-  /** Model identifier */
-  model: string;
-  /** Maximum tokens for response */
-  maxTokens: number;
-  /** Temperature for generation (0-1) */
-  temperature: number;
-  /** Timeout in milliseconds */
-  timeout: number;
-  /** Maximum concurrent requests */
-  concurrency: number;
-}
-
-/**
- * Default analyzer configuration
- */
-export const DEFAULT_ANALYZER_CONFIG: Partial<AnalyzerConfig> = {
-  model: 'grok-4-1-fast-reasoning',
-  maxTokens: 256,
-  temperature: 0.1,
-  timeout: 30000,
-  concurrency: 5,
-};
+// NOTE: LLM provider configuration now lives in the pluggable LLM seam as
+// `LLMConfig` (src/llm/config.ts) — provider/model/endpoint/limits, env-driven.
+// The old `AnalyzerConfig` / `DEFAULT_ANALYZER_CONFIG` (hardwired to a deprecated
+// model, always-on temperature) were removed in the P2 pluggable-AI rebuild.
 
 /**
  * Raw analysis result from LLM before processing
@@ -57,6 +31,8 @@ export interface AnalysisCacheEntry {
   result: AnalysisResult;
   /** When analysis was performed */
   analyzedAt: string;
+  /** Provider used for analysis (e.g. 'anthropic', 'openai-compatible') */
+  provider: string;
   /** Model used for analysis */
   model: string;
 }

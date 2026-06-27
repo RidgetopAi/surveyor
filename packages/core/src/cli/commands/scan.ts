@@ -14,7 +14,8 @@ import { Command } from 'commander';
 import * as fs from 'fs';
 import * as path from 'path';
 import { scanProject } from '../../parser/index.js';
-import { analyzeBehavior, createLLMClientFromEnv } from '../../analyzer/index.js';
+import { analyzeBehavior } from '../../analyzer/index.js';
+import { createProviderFromEnv } from '../../llm/index.js';
 import type { AnalysisProgress } from '../../types/analyzer.types.js';
 
 interface ScanCommandOptions {
@@ -33,7 +34,7 @@ export const scanCommand = new Command('scan')
   .option('-o, --output <dir>', 'Output directory (default: stdout)')
   .option('-f, --format <type>', 'Output format: json', 'json')
   .option('-v, --verbose', 'Verbose output', false)
-  .option('-a, --analyze', 'Run behavioral analysis on functions (requires SURVEYOR_LLM_API_KEY)', false)
+  .option('-a, --analyze', 'Run behavioral analysis on functions (requires the configured LLM API key, e.g. ANTHROPIC_API_KEY)', false)
   .option('--no-analyze', 'Skip behavioral analysis')
   .option('--no-detect', 'Skip the detection engines (knip + dependency-cruiser)')
   .option('-m, --mode <mode>', 'Detection mode: app | library (library suppresses unused-export findings)', 'app')
@@ -67,7 +68,7 @@ export const scanCommand = new Command('scan')
       // Run behavioral analysis if requested
       if (shouldAnalyze) {
         try {
-          const client = createLLMClientFromEnv();
+          const provider = createProviderFromEnv();
           const outputDir = output ? path.resolve(output) : path.join(absolutePath, '.surveyor');
 
           if (verbose) {
@@ -84,10 +85,9 @@ export const scanCommand = new Command('scan')
               }
             : undefined;
 
-          result = await analyzeBehavior(result, client, {
+          result = await analyzeBehavior(result, provider, {
             onProgress,
             cacheDir: outputDir,
-            model: process.env.SURVEYOR_LLM_MODEL || 'grok-4-1-fast-reasoning',
           });
 
           if (verbose) {
