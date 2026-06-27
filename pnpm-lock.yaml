@@ -49,8 +49,8 @@ importers:
   packages/server:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.13.0
-        version: 1.19.9(hono@4.11.4)
+        specifier: ^2.0.6
+        version: 2.0.6(hono@4.12.27)
       '@surveyor/core':
         specifier: workspace:*
         version: link:../core
@@ -58,8 +58,11 @@ importers:
         specifier: ^16.4.0
         version: 16.6.1
       hono:
-        specifier: ^4.6.0
-        version: 4.11.4
+        specifier: ^4.12.27
+        version: 4.12.27
+      uuid:
+        specifier: ^10.0.0
+        version: 10.0.0
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
@@ -662,9 +665,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@hono/node-server@1.19.9':
-    resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
-    engines: {node: '>=18.14.1'}
+  '@hono/node-server@2.0.6':
+    resolution: {integrity: sha512-7DeRlKG57JDBNZ5Qj2jwVdgwQy4b0tLubRLl3zCf91/rCf9i7p1V5FtW/yWibm1uUHE493ts9ZXH/7g/LQWl+g==}
+    engines: {node: '>=20'}
     peerDependencies:
       hono: ^4
 
@@ -1231,8 +1234,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hono@4.11.4:
-    resolution: {integrity: sha512-U7tt8JsyrxSRKspfhtLET79pU8K+tInj5QZXs1jSugO1Vq5dFj3kmZsRldo29mTBfcjDRVRXrEZ6LS63Cog9ZA==}
+  hono@4.12.27:
+    resolution: {integrity: sha512-1yrb/+w6HWQJrUCLkJ2IF5jNIPvvFkblV5RNOYl6bV+OA6p9GLcMpHFFGTosSvHvcAUibuUukRqhlYI4z32C7Q==}
     engines: {node: '>=16.9.0'}
 
   is-binary-path@2.1.0:
@@ -2133,9 +2136,9 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
-  '@hono/node-server@1.19.9(hono@4.11.4)':
+  '@hono/node-server@2.0.6(hono@4.12.27)':
     dependencies:
-      hono: 4.11.4
+      hono: 4.12.27
 
   '@isaacs/balanced-match@4.0.1': {}
 
@@ -2728,7 +2731,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.11.4: {}
+  hono@4.12.27: {}
 
   is-binary-path@2.1.0:
     dependencies:

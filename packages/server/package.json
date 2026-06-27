@@ -14,10 +14,11 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.0",
+    "@hono/node-server": "^2.0.6",
     "@surveyor/core": "workspace:*",
     "dotenv": "^16.4.0",
-    "hono": "^4.6.0"
+    "hono": "^4.12.27",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
