@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Canvas } from './components/canvas';
-import { Breadcrumb, SearchBar, FilePicker } from './components/controls';
+import { Breadcrumb, SearchBar, FilePicker, ViewToggle } from './components/controls';
 import { NodeDetailPanel, AnalyzePanel, ScanPanel, WarningPanel } from './components/panels';
 import { useScanStore } from './stores/scan-store';
 import type { ScanResult } from '@surveyor/core';
@@ -119,6 +119,7 @@ function App() {
           </span>
         )}
         <SearchBar className="w-64" />
+        <ViewToggle />
         <Breadcrumb className="ml-auto" />
       </header>
       <main className="flex-1 min-h-0 flex">

@@ -4,6 +4,7 @@
 
 import { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
+import { useScanStore } from '../../stores/scan-store';
 
 export interface FolderNodeDataProps {
   label: string;
@@ -13,7 +14,6 @@ export interface FolderNodeDataProps {
   warningCount: number;
   isFaded?: boolean;
   isHighlighted?: boolean;
-  onWarningBadgeClick?: (folderPath: string) => void;
   [key: string]: unknown;
 }
 
@@ -23,13 +23,12 @@ export interface FolderNodeDataProps {
  * Click to drill down into the folder
  */
 function FolderNodeComponent({ data }: { data: FolderNodeDataProps }) {
-  const { isFaded, isHighlighted, warningCount, folderPath, onWarningBadgeClick } = data;
+  const { isFaded, isHighlighted, warningCount, folderPath } = data;
+  const highlightFolderWarnings = useScanStore((s) => s.highlightFolderWarnings);
 
   const handleBadgeClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent folder drill-in
-    if (onWarningBadgeClick) {
-      onWarningBadgeClick(folderPath);
-    }
+    highlightFolderWarnings(folderPath);
   };
 
   return (
