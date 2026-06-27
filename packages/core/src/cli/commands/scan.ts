@@ -23,6 +23,8 @@ interface ScanCommandOptions {
   verbose: boolean;
   analyze: boolean;
   noAnalyze: boolean;
+  detect: boolean;
+  mode: 'app' | 'library';
 }
 
 export const scanCommand = new Command('scan')
@@ -33,9 +35,12 @@ export const scanCommand = new Command('scan')
   .option('-v, --verbose', 'Verbose output', false)
   .option('-a, --analyze', 'Run behavioral analysis on functions (requires SURVEYOR_LLM_API_KEY)', false)
   .option('--no-analyze', 'Skip behavioral analysis')
+  .option('--no-detect', 'Skip the detection engines (knip + dependency-cruiser)')
+  .option('-m, --mode <mode>', 'Detection mode: app | library (library suppresses unused-export findings)', 'app')
   .action(async (targetPath: string, options: ScanCommandOptions) => {
-    const { output, format: _format, verbose, analyze, noAnalyze } = options;
+    const { output, format: _format, verbose, analyze, noAnalyze, detect, mode } = options;
     const shouldAnalyze = analyze && !noAnalyze;
+    const detectionMode: 'app' | 'library' = mode === 'library' ? 'library' : 'app';
 
     // Resolve the target path
     const absolutePath = path.resolve(targetPath);
@@ -53,8 +58,11 @@ export const scanCommand = new Command('scan')
     }
 
     try {
-      // Run the scan
-      let result = await scanProject(absolutePath, { verbose });
+      // Run the scan (detection engines on by default; --no-detect disables)
+      let result = await scanProject(absolutePath, {
+        verbose,
+        ...(detect ? { detection: { mode: detectionMode } } : {}),
+      });
 
       // Run behavioral analysis if requested
       if (shouldAnalyze) {

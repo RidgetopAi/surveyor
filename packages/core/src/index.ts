@@ -16,3 +16,6 @@ export * from './resolver/index.js';
 
 // Analyzer
 export * from './analyzer/index.js';
+
+// Detection engines (knip + dependency-cruiser → Warning model)
+export * from './detection/index.js';

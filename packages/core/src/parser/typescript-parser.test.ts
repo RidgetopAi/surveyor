@@ -6,6 +6,7 @@ import { describe, it, expect } from 'vitest';
 import * as path from 'path';
 import { scanProject, parseFile } from './typescript-parser.js';
 import { ScanStatus } from '../types/scan.types.js';
+import { WarningCategory } from '../types/warning.types.js';
 
 // Path to test fixtures
 const SAMPLE_PROJECT = path.join(__dirname, '../../../../test-fixtures/sample-project');
@@ -127,21 +128,42 @@ describe('scanProject', () => {
     }
   });
 
-  it('should detect warnings when enabled', async () => {
-    const result = await scanProject(SAMPLE_PROJECT);
+  it('detects warnings (with the retired detectors explicitly enabled) and populates the extended Warning fields', async () => {
+    // Phase 1 default-OFFs orphaned/unused/circular; enable them explicitly to
+    // exercise the in-process warning path and assert the extended fields.
+    const result = await scanProject(SAMPLE_PROJECT, {
+      warningOptions: {
+        detectOrphaned: true,
+        detectUnusedExports: true,
+        detectFileCircular: true,
+        detectLargeFiles: true,
+      },
+    });
 
-    // Should have detected some warnings (orphaned code, unused exports, etc.)
     expect(result.warnings.length).toBeGreaterThan(0);
     expect(result.stats.totalWarnings).toBe(result.warnings.length);
 
-    // Each warning should have required fields
+    // Each warning carries the base + extended (source/confidence/dismissible) fields.
     for (const warning of result.warnings) {
       expect(warning.id).toBeDefined();
       expect(warning.category).toBeDefined();
       expect(warning.level).toBeDefined();
       expect(warning.title).toBeDefined();
       expect(warning.affectedNodes).toBeDefined();
+      expect(warning.source).toBeDefined();
+      expect(typeof warning.confidence).toBe('number');
+      expect(typeof warning.dismissible).toBe('boolean');
     }
+  });
+
+  it('by default only runs the kept in-process detector (no orphaned/unused-export FP-prone detectors)', async () => {
+    // The FP-prone hand-rolled detectors are retired from the default path; the
+    // sample fixture has no large files, so the default in-process pass is empty.
+    const result = await scanProject(SAMPLE_PROJECT);
+    const categories = new Set(result.warnings.map((w) => w.category));
+    expect(categories.has(WarningCategory.OrphanedCode)).toBe(false);
+    expect(categories.has(WarningCategory.UnusedExport)).toBe(false);
+    expect(result.stats.totalWarnings).toBe(result.warnings.length);
   });
 
   it('should have no errors for valid project', async () => {

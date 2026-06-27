@@ -174,13 +174,31 @@ export interface WarningDetectorOptions {
 }
 
 /**
- * Default warning detector options
+ * Default warning detector options.
+ *
+ * Phase 1 (trustworthy analysis): the FP-prone hand-rolled detectors are
+ * RETIRED from the default path and replaced by battle-tested engines (see
+ * src/detection):
+ *   - detectOrphaned     → OFF. The function-level orphan detector was ~100% FP
+ *                          on real code (68/68 on ra-mandrel: components used via
+ *                          JSX, functions called inside class methods). knip's
+ *                          file-level unused detection replaces it.
+ *   - detectUnusedExports→ OFF. Name-based resolution mis-flagged lazy/dynamic
+ *                          imports, property access and object-map dispatch.
+ *                          knip (TS-compiler-accurate) replaces it.
+ *   - detectFileCircular → OFF. dependency-cruiser detects cycles via real module
+ *                          resolution (caught 9 real cycles on ra-mandrel the
+ *                          name-based detector missed: 0).
+ *   - detectLargeFiles   → ON. Ours, ~0% FP, kept.
+ *
+ * The retired detectors remain available (opt-in via these flags) for the
+ * characterization tests and comparison, but are not part of the product default.
  */
 export const DEFAULT_WARNING_OPTIONS: Required<WarningDetectorOptions> = {
-  detectFileCircular: true,
+  detectFileCircular: false,
   detectFunctionCircular: false,
-  detectOrphaned: true,
-  detectUnusedExports: true,
+  detectOrphaned: false,
+  detectUnusedExports: false,
   detectLargeFiles: true,
   largeFileThreshold: 500,
   detectMissingTypes: false,
