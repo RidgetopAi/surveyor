@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Canvas } from './components/canvas';
 import { Breadcrumb, SearchBar, FilePicker, ViewToggle } from './components/controls';
-import { NodeDetailPanel, AnalyzePanel, ScanPanel, WarningPanel } from './components/panels';
+import { NodeDetailPanel, ScanPanel, FindingsPanel } from './components/panels';
 import { useScanStore } from './stores/scan-store';
 import type { ScanResult } from '@surveyor/core';
 
 function App() {
   const { currentScan, isLoading, error, setScan, setLoading, setError } = useScanStore();
-  const [showAnalyzePanel, setShowAnalyzePanel] = useState(false);
   const [showScanPanel, setShowScanPanel] = useState(false);
-  const [showWarningPanel, setShowWarningPanel] = useState(false);
+  const [showFindingsPanel, setShowFindingsPanel] = useState(false);
 
   const handleFileSelect = (data: unknown) => {
     setLoading(true);
@@ -97,15 +96,9 @@ function App() {
           Scan
         </button>
         <FilePicker onFileSelect={handleFileSelect} onError={handleFileError} />
-        <button
-          onClick={() => setShowAnalyzePanel(true)}
-          className="px-3 py-1.5 bg-accent-purple hover:bg-accent-purple/80 text-white rounded text-sm font-medium transition-colors"
-        >
-          Analyze
-        </button>
         {currentScan && currentScan.stats.totalWarnings > 0 && (
           <button
-            onClick={() => setShowWarningPanel(true)}
+            onClick={() => setShowFindingsPanel(true)}
             className="px-3 py-1.5 bg-surface-3 hover:bg-surface-3/80 rounded text-sm font-medium transition-colors flex items-center gap-1.5"
           >
             <AlertTriangle className="w-4 h-4 text-status-warning" />
@@ -129,8 +122,7 @@ function App() {
         <NodeDetailPanel />
       </main>
       <ScanPanel isOpen={showScanPanel} onClose={() => setShowScanPanel(false)} />
-      <AnalyzePanel isOpen={showAnalyzePanel} onClose={() => setShowAnalyzePanel(false)} />
-      <WarningPanel isOpen={showWarningPanel} onClose={() => setShowWarningPanel(false)} />
+      <FindingsPanel isOpen={showFindingsPanel} onClose={() => setShowFindingsPanel(false)} />
     </div>
   );
 }

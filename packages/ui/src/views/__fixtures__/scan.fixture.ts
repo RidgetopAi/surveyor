@@ -17,6 +17,7 @@ import type {
   ScanResult,
   FileNode,
   FunctionNode,
+  ClassNode,
   Connection,
   Warning,
   BehavioralFlags,
@@ -98,6 +99,31 @@ function fn(
   };
 }
 
+function cls(
+  id: string,
+  name: string,
+  filePath: string,
+  parentFileId: string,
+  methods: string[],
+  ext: string | null,
+  impl: string[]
+): ClassNode {
+  return {
+    id,
+    type: NodeType.Class,
+    name,
+    filePath,
+    line: 1,
+    endLine: 40,
+    parentFileId,
+    methods,
+    properties: [],
+    isExported: true,
+    extends: ext,
+    implements: impl,
+  };
+}
+
 function importConn(id: string, sourceId: string, targetId: string): Connection {
   return {
     id,
@@ -123,6 +149,12 @@ function callConn(id: string, sourceId: string, targetId: string): Connection {
 export interface FixtureOptions {
   /** When true, strip behavioral data from ALL functions (no-AI-scan case). */
   noBehavioral?: boolean;
+  /**
+   * When true, add a ClassNode to src/a.ts (id `class:a1`, two methods,
+   * extends/implements) and wire it into fileA.classes. Default off so the
+   * baseline view tests are unaffected.
+   */
+  withClasses?: boolean;
 }
 
 export function makeScan(opts: FixtureOptions = {}): ScanResult {
@@ -136,6 +168,11 @@ export function makeScan(opts: FixtureOptions = {}): ScanResult {
   const fnB1 = fn('fn:b1', 'fetchRemote', 'src/b.ts', 'file:b', opts.noBehavioral ? null : behavioral(flags({ httpCall: true })), true);
   const fnC1 = fn('fn:c1', 'pureHelper', 'src/util/c.ts', 'file:c', null);
 
+  const classA1 = opts.withClasses
+    ? cls('class:a1', 'Widget', 'src/a.ts', 'file:a', ['render', 'dispose'], 'Component', ['Disposable'])
+    : null;
+  if (classA1) fileA.classes = [classA1.id];
+
   const nodes = {
     [fileA.id]: fileA,
     [fileB.id]: fileB,
@@ -145,6 +182,7 @@ export function makeScan(opts: FixtureOptions = {}): ScanResult {
     [fnA2.id]: fnA2,
     [fnB1.id]: fnB1,
     [fnC1.id]: fnC1,
+    ...(classA1 ? { [classA1.id]: classA1 } : {}),
   };
 
   const connections: Connection[] = [
@@ -193,7 +231,7 @@ export function makeScan(opts: FixtureOptions = {}): ScanResult {
     stats: {
       totalFiles: 4,
       totalFunctions: 4,
-      totalClasses: 0,
+      totalClasses: classA1 ? 1 : 0,
       totalConnections: connections.length,
       totalWarnings: warnings.length,
       warningsByLevel: {
@@ -201,7 +239,7 @@ export function makeScan(opts: FixtureOptions = {}): ScanResult {
         [WarningLevel.Warning]: 1,
         [WarningLevel.Error]: 0,
       },
-      nodesByType: { file: 4, function: 4 },
+      nodesByType: classA1 ? { file: 4, function: 4, class: 1 } : { file: 4, function: 4 },
       analyzedCount: opts.noBehavioral ? 0 : 3,
       pendingAnalysis: opts.noBehavioral ? 4 : 1,
     },

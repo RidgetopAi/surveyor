@@ -225,6 +225,11 @@ export function ScanPanel({ isOpen, onClose, serverUrl = SERVER_CONFIG.baseUrl }
                   </label>
                 </div>
 
+                <p className="text-text-muted text-xs">
+                  AI behavioral analysis runs server-side using the provider
+                  configured on the server (API keys stay server-side).
+                </p>
+
                 <button
                   onClick={handleScan}
                   disabled={!projectPath.trim()}
