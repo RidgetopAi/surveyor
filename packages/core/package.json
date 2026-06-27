@@ -27,6 +27,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.106.0",
     "commander": "^12.1.0",
     "dependency-cruiser": "^17.4.3",
     "dotenv": "^17.4.2",

@@ -12,7 +12,10 @@ import type {
   AnalysisResult,
 } from '../types/analyzer.types.js';
 
-const CACHE_VERSION = 1;
+// v2: cache entries are now keyed on provider + model in addition to content hash,
+// so swapping the AI backend/model invalidates stale summaries instead of serving
+// them. Bumping the version invalidates pre-v2 caches (which lack `provider`).
+const CACHE_VERSION = 2;
 const CACHE_FILENAME = 'analysis-cache.json';
 
 /**
@@ -84,12 +87,16 @@ export function createCache(projectPath: string): AnalysisCache {
 }
 
 /**
- * Get a cached analysis result if available and content matches
+ * Get a cached analysis result if available AND it matches on content + provider +
+ * model. A change to any of the three is a cache miss — so swapping the AI backend
+ * or model never serves a stale summary produced by the old one.
  */
 export function getCachedResult(
   cache: AnalysisCache,
   functionId: string,
-  contentHash: string
+  contentHash: string,
+  provider: string,
+  model: string
 ): AnalysisResult | null {
   const entry = cache.entries[functionId];
 
@@ -102,23 +109,31 @@ export function getCachedResult(
     return null;
   }
 
+  // Different AI backend or model - cache miss (don't serve a stale summary).
+  if (entry.provider !== provider || entry.model !== model) {
+    return null;
+  }
+
   return entry.result;
 }
 
 /**
- * Store an analysis result in the cache
+ * Store an analysis result in the cache, tagged with the provider + model that
+ * produced it so a later swap invalidates it.
  */
 export function setCachedResult(
   cache: AnalysisCache,
   functionId: string,
   contentHash: string,
   result: AnalysisResult,
+  provider: string,
   model: string
 ): void {
   const entry: AnalysisCacheEntry = {
     contentHash,
     result,
     analyzedAt: new Date().toISOString(),
+    provider,
     model,
   };
 

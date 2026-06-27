@@ -1,123 +1,22 @@
-# Behavioral Summary Prompt
+# Behavioral Summary Prompt — design reference
+
+> **Source of truth is CODE, not this file.** The runtime prompt, the structured
+> `{summary, flags}` JSON schema, and the response normalizer all live in
+> [`packages/core/src/llm/prompt.ts`](../packages/core/src/llm/prompt.ts) so they
+> cannot drift from what actually ships (the npm package ships only `dist`, and the
+> prompt is overridable via `LLMConfig.systemPrompt` / `SURVEYOR_LLM_SYSTEM_PROMPT`).
+> This document is design reference only.
 
 ## Purpose
-Generate a one-line summary and side effect flags for a TypeScript/JavaScript function.
 
----
+Generate a one-line summary and side-effect flags for a single TypeScript/JavaScript
+function.
 
-## System Prompt
-
-```
-You are a code analyzer. Your job is to read a function and produce:
-1. A one-line summary (max 80 characters) of what the function does
-2. Side effect flags indicating external interactions
-
-Be precise and factual. Describe behavior, not implementation.
-```
-
----
-
-## User Prompt Template
-
-```
-Analyze this function and return JSON:
-
-**Function name:** {{functionName}}
-**File:** {{filePath}}
-**Code:**
-```{{language}}
-{{functionCode}}
-```
-
-Return ONLY valid JSON in this exact format:
-{
-  "summary": "One-line description of what this function does (max 80 chars)",
-  "flags": {
-    "databaseRead": true/false,
-    "databaseWrite": true/false,
-    "httpCall": true/false,
-    "fileRead": true/false,
-    "fileWrite": true/false,
-    "sendsNotification": true/false,
-    "modifiesGlobalState": true/false,
-    "hasSideEffects": true/false
-  }
-}
-
-Rules:
-- Summary should describe WHAT it does, not HOW
-- Use active voice: "Creates user record" not "A function that creates"
-- Be specific: "Fetches user by ID from database" not "Gets data"
-- hasSideEffects is true if ANY other flag is true OR if function modifies external state
-- If unsure about a flag, set to false
-```
-
----
-
-## Example Input
-
-```typescript
-async function createUser(userData: CreateUserInput): Promise<User> {
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
-  const user = await db.users.create({
-    ...userData,
-    password: hashedPassword,
-    createdAt: new Date(),
-  });
-  await sendWelcomeEmail(user.email);
-  return user;
-}
-```
-
----
-
-## Example Output
+## Output contract
 
 ```json
 {
-  "summary": "Creates user with hashed password and sends welcome email",
-  "flags": {
-    "databaseRead": false,
-    "databaseWrite": true,
-    "httpCall": false,
-    "fileRead": false,
-    "fileWrite": false,
-    "sendsNotification": true,
-    "modifiesGlobalState": false,
-    "hasSideEffects": true
-  }
-}
-```
-
----
-
-## Batching Strategy
-
-For cost efficiency, batch up to 5 functions per request:
-
-```
-Analyze these functions and return a JSON array:
-
-{{#each functions}}
----
-**Function {{index}}:** {{functionName}}
-**File:** {{filePath}}
-```{{language}}
-{{functionCode}}
-```
-{{/each}}
-
-Return ONLY a JSON array with one object per function in the same order.
-```
-
----
-
-## Error Handling
-
-If function is too complex or unclear:
-```json
-{
-  "summary": "Complex function - manual review recommended",
+  "summary": "One-line description of what the function does (max 100 chars)",
   "flags": {
     "databaseRead": false,
     "databaseWrite": false,
@@ -126,7 +25,33 @@ If function is too complex or unclear:
     "fileWrite": false,
     "sendsNotification": false,
     "modifiesGlobalState": false,
-    "hasSideEffects": true
+    "hasSideEffects": false
   }
 }
 ```
+
+- **Anthropic** (default) enforces this SHAPE via a forced tool call whose
+  `input_schema` is `ANALYSIS_JSON_SCHEMA` (structured output — no fence-strip parse).
+- **OpenAI-compatible** (incl. local Ollama) requests JSON via
+  `response_format: { type: 'json_object' }`, with a tolerant fence-strip fallback.
+- Both converge through the single `normalizeAnalysis()` normalizer (coerce flags to
+  booleans; `hasSideEffects` is implied by any concrete effect).
+
+## Flag semantics
+
+| flag | meaning |
+|------|---------|
+| `databaseRead` | Reads from a database (SELECT, find, get queries) |
+| `databaseWrite` | Writes to a database (INSERT, UPDATE, DELETE, save, create) |
+| `httpCall` | Makes outbound HTTP/network requests (fetch, axios, http client) |
+| `fileRead` | Reads from the filesystem |
+| `fileWrite` | Writes to the filesystem |
+| `sendsNotification` | Sends email, push notification, or SMS |
+| `modifiesGlobalState` | Mutates global/singleton/module-level state |
+| `hasSideEffects` | True if any other flag is true OR external state is mutated |
+
+## Cost follow-up (NOT built in P2)
+
+The Anthropic **Message Batches API** offers ~50% cheaper bulk analysis. It is a
+known cost optimization for the worker-pool path and is deliberately deferred — see
+the P2 return notes.
